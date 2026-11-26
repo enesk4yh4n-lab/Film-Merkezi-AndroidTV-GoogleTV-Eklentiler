@@ -1,0 +1,9 @@
+**/build/
+.gradle/
+.idea/
+*.pem
+*.key
+*.jks
+*.keystore
+*.log
+private/
