@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "id": "film-merkezi-android-eklentiler",
+  "name": "Film Merkezi Android Eklentiler",
+  "publicKey": "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAyLKJw9+q97QUKCs8HYDWTuNLBtKgaPKWX+yPfjV83IvQR9GmqUIzkX8kbcnrt8QvhsqZ1mXMgE3eonvMf2uTIvD643Jb1UvZbeS5ACwR+0Nl9DmhabmX2T0Kv2dDVeftbXQoxRYrXadjr0YLgvSTZ+qCWKYRs6/i9MpCpIaEg/PRvDPGjhXtthtlFlqZSv/a9tMmDeztDcoi7gZtL8lSC8DdnndGbKQOepD1AJv66ysl3vKNaNa1jmtwZ7QcJVJ+tkYgA8uP8QfqPiJYQzmcsuCx9/zH3qxG4CwT8weEG1YeV+kT+0CxRPWuYhxDaDZ/9z62FC2xlhCV7IKseWQXbkCUqHBsFD0OxZ5RUbdFUx3eU+H9x/iUhGWAK5R2wETV15Yhj8hOdrbHRy0qRkSgFrc5q/L5OrX5FCDDKnHtZdWjPRBsqk887oOi3sSTDUDykRpWTO1lkotLmvXqly3TLddiVleFVwsvnKut9I0Vz7Gvb0Dzdl23SseG10vur/IBAgMBAAE=",
+  "revision": 1,
+  "packages": []
+}
