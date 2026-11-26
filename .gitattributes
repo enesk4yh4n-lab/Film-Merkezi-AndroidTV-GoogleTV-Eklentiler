@@ -1,0 +1,8 @@
+*.kt text eol=lf
+*.java text eol=lf
+*.kts text eol=lf
+*.md text eol=lf
+*.jar binary
+packages/** -text
+filmmerkezi-android-repository.json -text
+filmmerkezi-android-repository.sig -text
