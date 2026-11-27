@@ -5,6 +5,79 @@
   "id": "film-merkezi-android-eklentiler",
   "name": "Film Merkezi Android Eklentiler",
   "publicKey": "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAyLKJw9+q97QUKCs8HYDWTuNLBtKgaPKWX+yPfjV83IvQR9GmqUIzkX8kbcnrt8QvhsqZ1mXMgE3eonvMf2uTIvD643Jb1UvZbeS5ACwR+0Nl9DmhabmX2T0Kv2dDVeftbXQoxRYrXadjr0YLgvSTZ+qCWKYRs6/i9MpCpIaEg/PRvDPGjhXtthtlFlqZSv/a9tMmDeztDcoi7gZtL8lSC8DdnndGbKQOepD1AJv66ysl3vKNaNa1jmtwZ7QcJVJ+tkYgA8uP8QfqPiJYQzmcsuCx9/zH3qxG4CwT8weEG1YeV+kT+0CxRPWuYhxDaDZ/9z62FC2xlhCV7IKseWQXbkCUqHBsFD0OxZ5RUbdFUx3eU+H9x/iUhGWAK5R2wETV15Yhj8hOdrbHRy0qRkSgFrc5q/L5OrX5FCDDKnHtZdWjPRBsqk887oOi3sSTDUDykRpWTO1lkotLmvXqly3TLddiVleFVwsvnKut9I0Vz7Gvb0Dzdl23SseG10vur/IBAgMBAAE=",
-  "revision": 34,
-  "packages": []
+  "revision": 35,
+  "packages": [
+    {
+      "id": "p002",
+      "type": "site",
+      "name": "P002 · PuhuTV",
+      "version": "1.0.0",
+      "minAppVersionCode": 38,
+      "manifest": "packages/p002/1.0.0/manifest.json",
+      "manifestSha256": "06bdc6e30b5d2a15baf039ce32a9959596f2ca1ab3bb9acd482b2c04dc90b2a5"
+    },
+    {
+      "id": "r002",
+      "type": "resolver",
+      "name": "R002 · PuhuTV kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 38,
+      "manifest": "packages/r002/1.0.0/manifest.json",
+      "manifestSha256": "ba2285962377825e092806abc9345be65aae616476fce488e60c4ea6bf65bd4d"
+    },
+    {
+      "id": "p003",
+      "type": "site",
+      "name": "P003 · NOW",
+      "version": "1.0.0",
+      "minAppVersionCode": 38,
+      "manifest": "packages/p003/1.0.0/manifest.json",
+      "manifestSha256": "ba4eb14de65135f2e7ad54e2f959e31dde0c56dc5de9c27f8db3c9deb9a811ce"
+    },
+    {
+      "id": "r003",
+      "type": "resolver",
+      "name": "R003 · NOW kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 38,
+      "manifest": "packages/r003/1.0.0/manifest.json",
+      "manifestSha256": "ee378909596320d22cfa6c01d04837c358545360b87e92b41bb4d684aa20b1bd"
+    },
+    {
+      "id": "p004",
+      "type": "site",
+      "name": "P004 · Filmci Baba",
+      "version": "1.0.0",
+      "minAppVersionCode": 38,
+      "manifest": "packages/p004/1.0.0/manifest.json",
+      "manifestSha256": "14773efe86cc06500f1cababe9d4bd12f438a3b9067ddbaad6cc4f67b1e9468f"
+    },
+    {
+      "id": "r004",
+      "type": "resolver",
+      "name": "R004 · Filmci Baba kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 38,
+      "manifest": "packages/r004/1.0.0/manifest.json",
+      "manifestSha256": "e6961964156298bcc443f231e6259f253060cad5f45d17c98b3247f4977c9a59"
+    },
+    {
+      "id": "p005",
+      "type": "site",
+      "name": "P005 · Star TV",
+      "version": "1.0.0",
+      "minAppVersionCode": 38,
+      "manifest": "packages/p005/1.0.0/manifest.json",
+      "manifestSha256": "d29c668e5cf5f55117c475bbb5eb37b295cbfd39dbdc5c1a8faa2c765d36d9d4"
+    },
+    {
+      "id": "r005",
+      "type": "resolver",
+      "name": "R005 · Star TV kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 38,
+      "manifest": "packages/r005/1.0.0/manifest.json",
+      "manifestSha256": "123b35a9681db914b3f8a6f0f72d936b0cc5854a71fd4819e052e8bd64431746"
+    }
+  ]
 }

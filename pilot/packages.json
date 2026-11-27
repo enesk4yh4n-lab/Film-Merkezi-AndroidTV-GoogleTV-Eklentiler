@@ -1,0 +1,38 @@
+[
+  {
+    "id":"p002","type":"site","name":"P002 · PuhuTV","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
+    "site":{"id":"p002","name":"P002 · PuhuTV","base":"https://puhutv.com","search":"/","list":"/","cards":"a","title":"h2","seriesPath":"/dizi","contentPattern":"^/[^/]+$"},
+    "origins":["https://puhutv.com","https://appservice.puhutv.com","https://img-puhutv.mncdn.com"]
+  },
+  {
+    "id":"r002","type":"resolver","name":"R002 · PuhuTV kaynakları","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
+    "origins":["https://puhutv.com","https://dygvideo.dygdigital.com","https://puhu-p3.mncdn.com","https://puhu4k-p2.mncdn.com","https://rtuk-p.mncdn.com","https://img-puhutv.mncdn.com"]
+  },
+  {
+    "id":"p003","type":"site","name":"P003 · NOW","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
+    "site":{"id":"p003","name":"P003 · NOW","base":"https://www.nowtv.com.tr","search":"/arama","list":"/dizi-arsivi","cards":"section.videos .list-item","title":".program-name","seriesPath":"/dizi-arsivi","contentPattern":"^/[^/]+/(?:izle|bolum/\\d+)$"},
+    "origins":["https://www.nowtv.com.tr","https://nqg6bkpsnhen.merlincdn.net","https://tpsbayxekmes.merlincdn.net","https://tejedd76pluu.merlincdn.net"]
+  },
+  {
+    "id":"r003","type":"resolver","name":"R003 · NOW kaynakları","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
+    "origins":["https://www.nowtv.com.tr","https://tdywsbbzdx.erbvr.com","https://tdywsbbzdx.fdc.ercdn.net","https://tdywsbbzdx.fra.ercdn.net"]
+  },
+  {
+    "id":"p004","type":"site","name":"P004 · Filmci Baba","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
+    "site":{"id":"filmcibaba","name":"P004 · Filmci Baba","base":"https://filmizle.ink","search":"/?s=","list":"/Kategori/en-populer-filmler/","cards":"a.v100-card, .custom-card-wrapper, .v50-card","title":".v100-title, .movie-title, .v50-details h3","detailTitle":".p-v12-main-title, h1","description":".p-v12-summary, .film-ozeti, [itemprop=description]","year":".movie-release","imdb":".v100-imdb-tag, .v50-imdb-tag","seriesPath":"/Kategori/dizi-izle/","contentPattern":"^/[a-z0-9-]+/(?:[1-9]\\d*/)?$"},
+    "origins":["https://filmizle.ink"]
+  },
+  {
+    "id":"r004","type":"resolver","name":"R004 · Filmci Baba kaynakları","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
+    "origins":["https://filmizle.ink","https://hotstream.club","https://seyret2.store","https://seyret8.top","https://seyret2.top","https://seyret3.top","https://seyret4.top","https://seyret5.top","https://seyret6.top","https://seyret7.top","https://seyret9.top","https://seyret10.top","https://seyret1.store","https://seyret4.store","https://seyret5.store","https://seyret3.store","https://seyret6.store","https://seyret7.store"]
+  },
+  {
+    "id":"p005","type":"site","name":"P005 · Star TV","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
+    "site":{"id":"p005","name":"P005 · Star TV","base":"https://www.startv.com.tr","search":"/dizi","list":"/dizi","cards":"a","title":"h2","seriesPath":"/dizi","contentPattern":"^/dizi/[^/]+(?:/bolumler/[^/]+)?$"},
+    "origins":["https://www.startv.com.tr","https://media.startv.com.tr"]
+  },
+  {
+    "id":"r005","type":"resolver","name":"R005 · Star TV kaynakları","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
+    "origins":["https://www.startv.com.tr","https://player-assets.dygdigital.com","https://dygvideo.dygdigital.com","https://startv-p3.mncdn.com","https://startv-p2.mncdn.com","https://rtuk-p.mncdn.com"]
+  }
+]

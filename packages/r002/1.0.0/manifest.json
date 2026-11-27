@@ -1,0 +1,28 @@
+{
+  "id": "r002",
+  "type": "resolver",
+  "name": "R002 · PuhuTV kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 38,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.pilot.PilotEntry",
+  "origins": [
+    "https://puhutv.com",
+    "https://dygvideo.dygdigital.com",
+    "https://puhu-p3.mncdn.com",
+    "https://puhu4k-p2.mncdn.com",
+    "https://rtuk-p.mncdn.com",
+    "https://img-puhutv.mncdn.com"
+  ],
+  "dependencies": [],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "artifact": {
+    "path": "packages/r002/1.0.0/plugin.jar",
+    "size": 146892,
+    "sha256": "95c9de6c4468150a68adba74855a10cd316b4012e710bb2460b6f55ec9644a37"
+  }
+}
