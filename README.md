@@ -1,45 +1,42 @@
-# Film Merkezi Android TV / Google TV Eklentiler
+# Film Merkezi ? Android TV / Google TV Eklentiler
 
-Film Merkezi Android için bağımsız, imzalı Kotlin site ve çözümleyici paketleri. Tizen JavaScript paketleri Android'e kurulmaz; P/R kodları ve sıra Tizen ile aynıdır.
+Android i?in ba??ms?z, imzal? site ve kaynak ??z?mleyici paketleri. P/R kodlar? Tizen ile ayn? s?ray? izler; Android paketleri ba??ms?z s?r?mlenir. Tizen JavaScript paketleri Android'e kurulmaz.
 
-**27 Kasım 2026 pilotu:** Yalnız aşağıdaki dört site / sekiz paket hazırlanmıştır. Önceden kaldırılan diğer eklentiler tekrar yayımlanmaz.
+## Mevcut kurulum kapsam?
 
-| Sağlayıcı / çözümleyici | Site | Android paket sürümü |
+| Site eklentisi | Kaynak eklentisi | Paket s?r?m? |
 |---|---|---|
-| P002 / R002 | [PuhuTV](https://puhutv.com/) | 1.0.0 |
-| P003 / R003 | [NOW](https://www.nowtv.com.tr/) | 1.0.0 |
-| P004 / R004 | [Filmci Baba](https://filmizle.ink/) | 1.0.0 |
-| P005 / R005 | [Star TV](https://www.startv.com.tr/) | 1.0.0 |
+| P002 | R002 | 1.0.0 |
+| P003 | R003 | 1.0.0 |
+| P004 | R004 | 1.0.0 |
+| P005 | R005 | 1.0.0 |
 
-**Minimum uygulama: 0.12.2 / versionCode 38**, Android 6.0 / API 23. Android eklenti sürümleri Tizen sürümlerinden bağımsızdır. Paket kodları küçük harfle `p002`, `r002` biçiminde saklanır; arayüzde P002/R002 olarak gösterilir.
-
-İndeks: [filmmerkezi-android-repository.json](filmmerkezi-android-repository.json). Keşif işareti otomatik kurulum veya güven onayı değildir; yayıncı anahtarı uygulamada ayrıca kabul edilir.
+Minimum uygulama **0.12.2 / 38**, Android API 23. Kurulabilir paketlerin tek kayna?? [imzal? indeks](filmmerkezi-android-repository.json) dosyas?d?r. Site adlar? ve adresleri paket metadatas?ndad?r; APK i?inde sabit bir site katalo?u gerektirmez.
 
 <!-- film-merkezi-android-repository: filmmerkezi-android-repository.json -->
 
-Uygulama ve APK: [Film-Merkezi-AndroidTV-GoogleTV](https://github.com/enesk4yh4n-lab/Film-Merkezi-AndroidTV-GoogleTV).
+[Uygulama ve APK](https://github.com/enesk4yh4n-lab/Film-Merkezi-AndroidTV-GoogleTV/releases) ? [SDK ve paket s?zle?mesi](https://github.com/enesk4yh4n-lab/Film-Merkezi-AndroidTV-GoogleTV/blob/main/docs/android-plugin-sdk.md).
 
-[Gerçek testler, sınırlamalar ve komutlar](https://github.com/enesk4yh4n-lab/Film-Merkezi-AndroidTV-GoogleTV/blob/main/docs/pilot-p002-p005-report.md): dört gerçek kaynakla kısa Media3 oynatımı; imzalı DEX paketleriyle ayrı süreç testi; özgün Tizen çıktılarıyla kayıtlı yanıt karşılaştırması. Gerçek ARM TV ve uzun oynatma henüz doğrulanmadı.
-
-Yayıncı RSA SPKI SHA-256:
+Depo ke?fi otomatik kurulum veya g?ven onay? de?ildir. Yay?nc? anahtar? kullan?c? taraf?ndan ayr?ca onaylan?r. Yay?nc? RSA SPKI SHA-256:
 
 ```text
 d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f
 ```
 
-`P004` eski Filmci Baba kayıtlarını korumak için `filmcibaba` site kimliğini kullanır. Eski `site-filmcibaba` hâlâ kuruluysa önce Güncelleme Merkezi'nden eski site paketini kaldırın; sonra P004'ü kurun. Uygulamayı/verilerini silmeyin. Depodan kaldırmak cihazdaki eski kurulumları uzaktan silmez.
+## Yay?n kurallar?
 
-Geliştirme kaynakları `runtime/`, pilot tanımları `pilot/packages.json` içindedir. Eski `sources/` tanımları geliştirme referansıdır; kurulum indeksi değildir. Yerelde kalan eski `packages/site-*` ve `packages/resolver-*` dosyaları Git tarafından dışlanır.
+- Haz?rlama ve test iste?i yay?n onay? say?lmaz. Push, dosya y?kleme, Release, PR ve depo ayarlar? i?in ilgili kapsama a??k kullan?c? onay? gerekir.
+- S?r?m numaras? yay?n onay?ndan sonra, mevcut imzal? indeks kontrol edilerek belirlenir. Onay ?ncesi ?al??malar konu ad?yla yerelde tutulur.
+- Yay?mlanm?? paket, manifest veya imzal? indeks ayn? s?r?m/revizyonda de?i?tirilmez. A??klama d?zenlemek imzal? paketleri yeniden yay?mlamak de?ildir.
+- Site/??z?mleyici P/R e?le?mesi ve mevcut kimlik korunur. Kald?r?lm?? paketlerin yeniden yay?mlanmas? ayr?ca kapsam/onay gerektirir.
+- Anahtarlar, ?ifreler, hesap/cihaz bilgileri ve ham test g?nl?kleri depoya y?klenmez. TLS, imza, hash, ba??ml?l?k ve geri d?n?? kontrolleri korunur.
 
-Ana uygulama ve bu depo yan yana `Android`, `Android-Eklentiler` dizinlerine alınabilir; alternatif olarak `FM_ADDONS_DIR` kullanılır. Pilot paketleme aracı kapsamı açıkça ister ve canlı depoyu çıktı dizini olarak kabul etmez:
+Paket kald?rmak cihazdaki izleme kay?tlar?n? uzaktan silmez. Eski ve yeni paket ayn? sa?lay?c? kimli?ine sahipse eski site paketi G?ncelleme Merkezi'nden kald?r?l?p yeni paket kurulmal?d?r; uygulama verileri silinmemelidir.
 
-```text
-android/gradlew -p android :addonRuntime:assembleDebug :pluginApi:jar
-node tools/build-pilot-addons.cjs --key <depo-disi>/publisher.pem --out <yeni-deneme-dizini> --scope p002,p003,p004,p005 --revision 35
-```
+## Geli?tirme
 
-Komutlar ana uygulama deposunda çalıştırılır. İmzalı sürümler değiştirilemez; yeni kodda sürüm artırılır. Özel anahtarlar depoya, APK'ya veya CI'a girmez.
+`runtime/` ?al??t?r?labilir kodun kaynaklar?d?r. `pilot/packages.json` mevcut denemenin tan?mlar?d?r. `sources/` alt?nda kalan tarih? tan?mlar kurulum indeksi de?ildir; yerel eski paket dosyalar? otomatik yay?mlanmaz.
 
-[SDK / bağımsız yayıncı / ağ / JSON sözleşmesi](https://github.com/enesk4yh4n-lab/Film-Merkezi-AndroidTV-GoogleTV/blob/main/docs/android-plugin-sdk.md) · [Bağımsız örnek](examples/minimal-site/Example.java).
+Ana uygulama deposundaki paketleme arac? kapal? bir kapsam ve yeni bir deneme ??kt? dizini ister. ?zel anahtarlar depo d???nda kal?r. G?ncelleme indirme ve uygulama kullan?c? se?imiyle yap?l?r.
 
-Paketler güvenilen yayıncı kodudur. Ayrı Android süreci aynı UID'yi kullanır; kötü niyetli kod için güvenlik sandbox'ı değildir. İmza, sürüm/hash/bağımlılık kontrolleri korunur. Yerel HTTP, DRM/üyelik/coğrafi kısıt aşma, telemetri ve ikinci oynatıcı eklenmez.
+Eklenti s?reci uygulama UID'sini kullan?r; g?venilmeyen kod i?in bir g?venlik sandbox'? de?ildir. Paket kurulumu yay?nc?ya g?venmeyi gerektirir. Kullan?c? verisi, telemetri veya ikinci oynat?c? eklenmez.
