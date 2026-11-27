@@ -1,7 +1,7 @@
 # Film Merkezi Android TV / Google TV Eklentiler
 
 Film Merkezi Android için bağımsız, imzalı Kotlin site ve çözümleyici paketleri.
-Android SDK v1 için 16 siteye ait 32 site/çözümleyici paketi içerir. En az Film Merkezi 0.12.0 / versionCode 36 gerekir. Tizen JavaScript paketleriyle uyumlu değildir.
+**27 Kasım 2026:** Yayımlanmış 32 site/çözümleyici paketi inceleme ve düzeltme için kaldırıldı. Güncel imzalı indeks boştur; bu depodan kurulabilir eklenti sunulmamaktadır. Tizen JavaScript paketleriyle uyumlu değildir.
 
 İndeks: [filmmerkezi-android-repository.json](filmmerkezi-android-repository.json).
 Keşif işareti bir güven veya otomatik kurulum onayı değildir. Kullanıcı yayıncı anahtarını uygulamada ayrıca kabul eder.
@@ -16,9 +16,9 @@ Yayıncı RSA SPKI SHA-256:
 d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f
 ```
 
-Uygulamada Güncelleme Merkezi → Adresle depo ekle üzerinden bu GitHub depo adresini girin; yayıncıyı kabul edin, istediğiniz siteyi veya tüm uyumlu siteleri kurun. Uygula ve yeniden aç ile etkinleştirin. Hiçbir depo kendiliğinden seçilmez.
+Güncel indekste **0 paket** bulunur. Bu kaldırma işlemi cihazlara daha önce kurulmuş eklentileri veya izleme kayıtlarını uzaktan silmez.
 
-`sources/*/addon.json` yayın metadata'sıdır; `runtime/src` yerleşik adaptörlerin kaynak kodudur; `packages` imzalı, değiştirilemez sürümleri içerir. Tek DEX artifact birden çok manifest tarafından kullanılabilir ve cihazda hash ile tek kopya tutulur. Her site kendi çözümleyici sürümünü açık bağımlılık olarak bildirir.
+`runtime/src`, `sources` ve SDK örneği geliştirme kaynakları olarak korunmuştur. Kurulum dosyalarını sunan `packages` dizini ve eski `builtin-v1.0.0` yayın etiketi kaldırılmıştır. Yerel paket kopyaları inceleme için korunur; Git'e yeniden eklenmez.
 
 [SDK / bağımsız yayıncı / ağ / JSON sözleşmesi](https://github.com/enesk4yh4n-lab/Film-Merkezi-AndroidTV-GoogleTV/blob/main/docs/android-plugin-sdk.md) · [Bağımsız örnek](examples/minimal-site/Example.java).
 
@@ -29,6 +29,6 @@ android/gradlew -p android :native:exportSiteSpecs :addonRuntime:assembleDebug :
 node tools/build-android-addons.cjs --key <depo-disinda>/publisher.pem --addons <eklenti-deposu>
 ```
 
-Komutlar ana uygulama deposundan çalıştırılır. Önceden yayımlanmış `1.0.0` dosyalarını yeniden üretip üzerine yazmayın; değişen paket metadata'sında sürümü artırın. Özel anahtarlar bu depoya, APK'ya veya CI'a girmez. Yeni APK veya bütün sitelerin canlı oynatma başarısı bu indeksin varlığından çıkarılamaz; güncel uygulama teslim raporuna bakın.
+Komutlar geliştirme referansıdır; şu anda paket yayını yapılmaz. Yeniden yayın kararı verilirse sürümler artırılmalı ve yerel yayın dışlama kuralı bilinçli olarak değiştirilmelidir. Özel anahtarlar bu depoya, APK'ya veya CI'a girmez.
 
 Paketler güvenilen yayıncı kodudur. Ayrı Android süreci aynı UID'yi kullanır ve kötü niyetli kod için güvenlik sandbox'ı değildir. İmza, sürüm/hash/bağımlılık kontrolleri uygulanır; kullanıcı güveni gereklidir.

@@ -7,3 +7,5 @@
 *.keystore
 *.log
 private/
+# Withdrawn distribution artifacts remain local for investigation.
+/packages/
