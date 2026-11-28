@@ -99,8 +99,12 @@ internal class Broadcaster(private val site: SiteSpec, private val io: PilotIO,
         val title=clean(item.text("name")); if(title.isBlank()) return null
         val year=listOf("released_at","productionDate","year").map{m.optInt(it)}.firstOrNull{it in 1880..2200}
         val genres=objects(m.optJSONArray("genres")).map{clean(it.text("name").ifBlank{it.text("display_name")})}.filter{it.isNotBlank()}
-        return Card(ContentRef(site.id,url,if(type.endsWith("serie")) ContentKind.SERIES else ContentKind.MOVIE),title,
-            puhuImage(listOf("image_vertical_mobile","image_vertical_web_mobile","image").map{item.text(it)}.firstOrNull{it.isNotBlank()}.orEmpty()),year,m.optDouble("imdb_score").takeIf{it>0&&it<=10},genres=genres)
+        val kind=if(type.endsWith("serie")) ContentKind.SERIES else ContentKind.MOVIE
+        val original=m.text("original_title").ifBlank{m.text("original_name")}
+        val imdb=ContentMetadata.imdb(m.text("imdb_id").ifBlank{m.text("imdb_url")})
+        return Card(ContentRef(site.id,url,kind),title,
+            puhuImage(listOf("image_vertical_mobile","image_vertical_web_mobile","image").map{item.text(it)}.firstOrNull{it.isNotBlank()}.orEmpty()),year,m.optDouble("imdb_score").takeIf{it>0&&it<=10},
+            originalTitle=original,imdbId=imdb,genres=genres,identityEvidence=IdentityEvidence(url,kind,year,imdb,original,title=title,typeVerified=true,yearVerified=year!=null))
     }
     private fun puhuImage(raw: String): String {
         val u=runCatching{java.net.URI(raw)}.getOrNull()?:return raw
@@ -110,7 +114,7 @@ internal class Broadcaster(private val site: SiteSpec, private val io: PilotIO,
     }
     private fun puhuDetail(input: Card): Detail {
         val url=io.page(input.ref.pageUrl).ifBlank{fail("PuhuTV içerik adresi geçersiz")}
-        val p=io.nextDataAt(url); val raw=(p.optJSONObject("details")?:p.optJSONObject("watchDetails"))?.optJSONObject("data")?:fail("PuhuTV içerik verisi yok")
+        val body=io.body(url);val p=io.nextData(body); val raw=(p.optJSONObject("details")?:p.optJSONObject("watchDetails"))?.optJSONObject("data")?:fail("PuhuTV içerik verisi yok")
         val parent=puhuCard(raw)?:fail("PuhuTV film/dizi verisi okunamadı"); val meta=raw.optJSONObject("meta")?:JSONObject()
         val episodes=mutableListOf<Episode>(); val seen=mutableSetOf<String>()
         if(parent.ref.kind==ContentKind.SERIES) {
@@ -131,9 +135,9 @@ internal class Broadcaster(private val site: SiteSpec, private val io: PilotIO,
             }
             if(episodes.isEmpty()) fail("PuhuTV oynatılabilir bölüm listesi yok")
         }
-        return finish(input,parent,clean(meta.text("description").ifBlank{meta.text("short_description")}),parent.genres,
+        return ContentMetadata.enrich(finish(input,parent,clean(meta.text("description").ifBlank{meta.text("short_description")}),parent.genres,
             objects(meta.optJSONArray("casts")).map{clean(it.text("name").ifBlank{it.text("display_name")})},episodes.sortedWith(compareBy({it.number.season},{it.number.number})),
-            mapOf("seriesExternalId" to raw.text("id"),"watchPage" to io.page(raw.text("to_watch_asset_slug"))))
+            mapOf("seriesExternalId" to raw.text("id"),"watchPage" to io.page(raw.text("to_watch_asset_slug")))),body,parent.ref.pageUrl)
     }
     private fun nowSeries(body: String): List<Card> = Jsoup.parse(body).select("section.videos .list-item").mapNotNull { el ->
         val url=io.page(el.selectFirst("a[href]")?.attr("href").orEmpty()); val title=el.selectFirst(".program-name")?.text().orEmpty()
@@ -153,7 +157,7 @@ internal class Broadcaster(private val site: SiteSpec, private val io: PilotIO,
     }
     private fun nowDetail(input: Card): Detail {
         val url=io.page(input.ref.pageUrl); val slug=Regex("^${Regex.escape(base)}/([^/]+)/(?:izle|bolum/\\d+)$").matchEntire(url)?.groupValues?.get(1)?:fail("NOW dizi adresi geçersiz")
-        val doc=Jsoup.parse(io.body(base+"/$slug/bolumler")); val btn=doc.selectFirst(".ajax-load-more-video[data-program-id][data-type=2]")?:fail("NOW bölüm listesi bulunamadı")
+        val body=io.body(base+"/$slug/bolumler");val doc=Jsoup.parse(body); val btn=doc.selectFirst(".ajax-load-more-video[data-program-id][data-type=2]")?:fail("NOW bölüm listesi bulunamadı")
         val id=btn.attr("data-program-id"); val count=btn.attr("data-count").toIntOrNull()?:0
         val seasons=doc.select("#video-filter-changer option").mapNotNull{it.attr("value").toIntOrNull()?.takeIf{n->n in 1..1000}}.distinct().sorted()
         if(!Regex("\\d+").matches(id)||count !in 1..100||seasons.isEmpty()) fail("NOW sezon/bölüm bilgisi geçersiz")
@@ -176,12 +180,31 @@ internal class Broadcaster(private val site: SiteSpec, private val io: PilotIO,
                 if(more&&added==0) fail("NOW tekrarlanan/eksik bölüm sayfası döndürdü")
             } while(more)
         }
-        return finish(input,parent,"",emptyList(),emptyList(),episodes.sortedWith(compareBy({it.number.season},{it.number.number})))
+        var result=ContentMetadata.enrich(finish(input,parent,"",emptyList(),emptyList(),episodes.sortedWith(compareBy({it.number.season},{it.number.number}))),body,parent.ref.pageUrl)
+        val info=doc.select("a[href]").map{io.page(it.attr("href"))}.firstOrNull{it==base+"/$slug/bilgi"}
+        if(info!=null)try{
+            val infoBody=io.body(info);val about=Jsoup.parse(infoBody)
+            val sections=about.select(".about-content-container > .about-meta")
+            val story=sections.firstOrNull{TextKey.fold(it.selectFirst(".about-meta-header")?.text().orEmpty())=="hikaye"}?.selectFirst("p")?.text().orEmpty()
+            val fields=sections.flatMap{it.select("p strong")}.associate{label->
+                val value=StringBuilder();var node=label.nextSibling()
+                while(node!=null){if(node is org.jsoup.nodes.Element&&node.normalName()=="strong")break
+                    value.append(when(node){is org.jsoup.nodes.TextNode->node.text();is org.jsoup.nodes.Element->if(node.normalName()=="br")" "else node.text();else->""});node=node.nextSibling()}
+                TextKey.fold(label.text()) to clean(value.toString())}
+            val genres=fields["tur"]?.split(Regex("\\s*[,/]\\s*"))?.filter{it.isNotBlank()}.orEmpty()
+            val cast=about.select(".act-desc").map{clean(it.text()).removePrefix("(").removeSuffix(")").trim()}.filter{it.isNotBlank()}.distinct()
+            result=ContentMetadata.enrich(result.copy(description=story.ifBlank{result.description},genres=genres.ifEmpty{result.genres},cast=cast.ifEmpty{result.cast}),infoBody,parent.ref.pageUrl)
+        }catch(e:DataFailure){result=result.copy(card=result.card.copy(identityEvidence=result.card.identityEvidence?.copy(reason="optional-metadata-unavailable:${e.kind}")))}
+        return result
     }
     private fun starCard(d: FlightData, item: Any): Card? {
         val url=io.page(d.text(d.field(item,"url"))); val title=d.text(d.field(item,"name"))
         if(d.field(item,"resourceType")!="TvSeries"||!Regex("[a-fA-F0-9]{24}").matches(d.text(d.field(item,"_id")))||!Regex("^${Regex.escape(base)}/dizi/[^/]+$").matches(url)||title.isBlank()) return null
-        return Card(ContentRef(site.id,url,ContentKind.SERIES),title,d.image(d.field(item,"poster")),genres=d.names(d.field(item,"genres")))
+        val year=listOf("startDate","releaseDate","year").mapNotNull{ContentMetadata.year(d.text(d.field(item,it)))}.distinct().singleOrNull()
+        val original=d.text(d.field(item,"originalTitle"));val imdb=ContentMetadata.imdb(d.text(d.field(item,"imdbId")))
+        val rating=d.text(d.field(item,"imdbRating")).toDoubleOrNull()?.takeIf{it>0&&it<=10}
+        return Card(ContentRef(site.id,url,ContentKind.SERIES),title,d.image(d.field(item,"poster")),year,rating,originalTitle=original,imdbId=imdb,genres=d.names(d.field(item,"genres")),
+            identityEvidence=IdentityEvidence(url,ContentKind.SERIES,year,imdb,original,title=title,typeVerified=true,yearVerified=year!=null))
     }
     private fun starCards(d: FlightData): List<Card> {
         val groups=d.find(true){v->val a=d.field(v,"items") as? JSONArray; a!=null&&a.length()>0&&d.field(a.opt(0),"resourceType")=="TvSeries"}
@@ -191,7 +214,7 @@ internal class Broadcaster(private val site: SiteSpec, private val io: PilotIO,
     private fun starCatalog()=getCached(base+"/dizi"){starCards(FlightData(io.body(base+"/dizi")))}
     private fun starDetail(input: Card): Detail {
         val url=io.page(input.ref.pageUrl); val parentUrl=Regex("^(${Regex.escape(base)}/dizi/[^/]+)(?:/bolumler/[^/]+)?$").matchEntire(url)?.groupValues?.get(1)?:fail("Star TV dizi adresi geçersiz")
-        val d=FlightData(io.body(parentUrl)); val item=d.selected("TvSeries",parentUrl,io::page); val parent=starCard(d,item)?:fail("Star TV dizi verisi bozuk"); val id=d.text(d.field(item,"_id"))
+        val body=io.body(parentUrl);val d=FlightData(body); val item=d.selected("TvSeries",parentUrl,io::page); val parent=starCard(d,item)?:fail("Star TV dizi verisi bozuk"); val id=d.text(d.field(item,"_id"))
         val episodes=mutableListOf<Episode>(); val seen=mutableSetOf<String>(); var complete=false
         for(page in 0 until 64) {
             val j=io.json(base+"/api/tv-series/$id/episodes?sort=episodeNo%20asc&skip=${page*48}&limit=48")
@@ -207,6 +230,13 @@ internal class Broadcaster(private val site: SiteSpec, private val io: PilotIO,
             if(added==0) fail("Star TV tekrarlanan bölüm sayfası döndürdü")
         }
         if(!complete) fail("Star TV bölüm tarama sınırı aşıldı; eksik liste gösterilmeyecek")
-        return finish(input,parent,d.text(d.field(item,"description")?:d.field(item,"summary")),parent.genres,d.names(d.field(item,"cast")),episodes.sortedWith(compareBy({it.number.season},{it.number.number})))
+        val cast=d.find(true){v->d.field(v,"resourceType")=="TvSeries"&&io.page(d.text(d.field(v,"url")))==parentUrl&&d.text(d.field(v,"_id"))==id}.flatMap{record->
+            val actors=d.value(d.field(record,"cast")) as? JSONArray
+            if(actors==null)emptyList()else (0 until actors.length()).mapNotNull{index->
+                val actor=d.field(actors.opt(index),"artiste")?:return@mapNotNull null
+                clean(d.text(d.field(actor,"firstName"))+" "+d.text(d.field(actor,"lastName"))).takeIf{it.isNotBlank()}
+            }
+        }.distinct().take(60)
+        return ContentMetadata.enrich(finish(input,parent,d.text(d.field(item,"description")?:d.field(item,"summary")),parent.genres,cast,episodes.sortedWith(compareBy({it.number.season},{it.number.number}))),body,parent.ref.pageUrl)
     }
 }

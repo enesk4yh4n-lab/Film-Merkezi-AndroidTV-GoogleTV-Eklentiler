@@ -52,6 +52,7 @@ class CatalogParser(val site:SiteSpec) {
             o.optJSONArray("titleAliases")?.values()?.map{it.toString()}?:emptyList(),fallback?.seriesIdentity?:"",fallback?.episodeNumber,fallback?.seriesRef,yearHint=o.optInt("yearHint").takeIf{it in 1888..2100}?:fallback?.yearHint,sourceSeason=o.optInt("sourceSeason").takeIf{it in 1..1000}?:fallback?.sourceSeason?:if(kind==ContentKind.SERIES)SeriesIdentity.season(o.string("title"))else null)
     }
     fun list(body:String,page:String):CatalogPage {
+        if(site.id in TrackedCatalog.sites)return TrackedCatalog(site).list(body,page)
         HtmlData.verify(body) // Reject challenge responses before schema-specific parsing.
         if(site.id=="dizipal")return DizipalParser.list(site,body,page)
         if(site.id=="diziboxum")return DiziboxumParser.list(site,body,page)
@@ -155,6 +156,8 @@ class CatalogParser(val site:SiteSpec) {
         return null
     }
     fun detail(body:String,card:Card):Detail {
+        if(site.id in TrackedCatalog.sites)return TrackedCatalog(site).detail(body,card)
+        if(card.ref.kind==ContentKind.COLLECTION||CollectionParser.recognizes(body,card))return CollectionParser.detail(body,card)
         if(site.id=="diziboxum")return DiziboxumParser.detail(site,body,card)
         HtmlData.verify(body)
         if(site.id=="dizipal")return DizipalParser.detail(site,body,card)
@@ -179,12 +182,18 @@ class CatalogParser(val site:SiteSpec) {
             val first=seasons.firstOrNull{it.sourceSeason==1}
             return Detail(card.copy(ref=card.ref.copy(kind=ContentKind.SERIES),title=title,year=first?.year,poster=first?.poster?:card.poster),episodePages=seasons.map{it.ref.pageUrl},seasons=seasons.mapNotNull{it.sourceSeason}.distinct().sorted())
         }
-        val schema=HtmlData.schemas(d).firstOrNull{it.string("@type") in setOf("Movie","TVSeries","TVEpisode")}
+        val schemas=HtmlData.schemas(d)
+        val episodeId=EpisodePages.ddiziEpisodeId(site,card.ref.pageUrl)
+        fun matchingEpisode(value:String)=EpisodePages.ddiziEpisodeId(site,value,card.ref.pageUrl,legacyMetadata=true)==episodeId
+        val schema=if(episodeId!=null)schemas.firstOrNull{it.string("@type")=="TVEpisode"&&matchingEpisode(it.string("url"))}
+            else schemas.firstOrNull{it.string("@type") in setOf("Movie","TVSeries","TVEpisode")}
         fun canonical(value:String)=site.catalogUrl(value,card.ref.pageUrl)?.let{site.canonical(it).toHttpUrl().newBuilder().query(null).build().toString()}
         val requested=canonical(card.ref.pageUrl)
-        val declared=d.selectFirst("link[rel=canonical]")?.attr("href")?.let(::canonical)
+        val declaredAddress=d.selectFirst("link[rel=canonical]")?.attr("href")?.takeIf(String::isNotBlank)
+        val declared=declaredAddress?.let(::canonical)
         val schemaUrl=schema?.string("url")?.takeIf{it.isNotBlank()}?.let(::canonical)
-        if((declared!=null&&declared!=requested)||(schemaUrl!=null&&schemaUrl!=requested))
+        if(if(episodeId!=null)declaredAddress!=null&&!matchingEpisode(declaredAddress)
+            else (declared!=null&&declared!=requested)||(schemaUrl!=null&&schemaUrl!=requested))
             throw DataFailure(FailureKind.PARSE,"İçerik kimliği yanıtla eşleşmiyor","detail")
         val heading=if(site.id=="hdfilmdelisi")d.select("h1").firstOrNull{TextKey.fold(it.text())!="film izle"}else d.selectFirst(site.detailTitle)
         val rawTitle=if(site.id=="fixfullfilmizle")FixFullSearch.archiveTitle(site,d,card.ref)?:HtmlData.text(heading)
@@ -201,7 +210,7 @@ class CatalogParser(val site:SiteSpec) {
         // is a verified series archive, rather than depending on that stale label.
         val seriesLayout=SeriesIdentity.archive(card.ref)||(seriesAddress||card.ref.kind==ContentKind.SERIES)&&d.selectFirst("#seasons-list, .seasons, .dizi-boxpost-cat, .moviefilm")!=null||site.id=="lovefilmizle"&&SeriesIdentity.season(title)!=null
         val kind=when{
-            card.ref.kind==ContentKind.EPISODE&&card.episodeNumber!=null->ContentKind.EPISODE
+            episodeId!=null||card.ref.kind==ContentKind.EPISODE&&card.episodeNumber!=null->ContentKind.EPISODE
             seriesLayout->ContentKind.SERIES
             schema?.string("@type")=="TVSeries"->ContentKind.SERIES
             schema?.string("@type")=="TVEpisode"->ContentKind.EPISODE
@@ -228,39 +237,46 @@ class CatalogParser(val site:SiteSpec) {
         val genres=schemaGenres.ifEmpty{d.select(site.genres).filter{n->n.parents().none{it.normalName() in setOf("nav","aside","footer","header")||it.normalName()=="form"}}.map{HtmlData.text(it)}.filter{it.isNotBlank()}}.distinct().take(30)
         val cast=schema?.optJSONArray("actor")?.values()?.filterIsInstance<JSONObject>()?.map{it.string("name")}?:d.select("[itemprop=actor], a[href*=\"/oyuncu/\"]").map{it.text()}
         val hdfSeries=if(site.id=="hdfilmdelisi"&&kind==ContentKind.SERIES)hdfSeriesData(d,enriched)else null
-        val episodes=episodes(d,enriched,hdfSeries)
+        val episodes=if(kind==ContentKind.SERIES)episodes(d,enriched,hdfSeries)else emptyList()
         val seasonPages=if(kind==ContentKind.SERIES)EpisodePages.links(site,d,enriched,card.ref.pageUrl)else emptyList()
         val declaredSeasonNumbers=episodes.map{it.number.season}+d.select("#seasons-list a, #seasons [data-bs-target]").mapNotNull{SeriesIdentity.season(it.text())}+listOfNotNull(enriched.sourceSeason)+
-            hdfSeries?.optJSONArray("seasons")?.values()?.filterIsInstance<JSONObject>().orEmpty().mapNotNull{it.optInt("sezonNo").takeIf{n->n in 1..1000}}
+            (hdfSeries?.optJSONArray("seasons")?:hdfSeries?.optJSONArray("sezonlar"))?.values()?.filterIsInstance<JSONObject>().orEmpty().mapNotNull{it.optInt("sezonNo").takeIf{n->n in 1..1000}}
         return Detail(enriched,description,genres,cast.take(60),schema?.string("duration")?:"",episodes,seasonPages,
             SourceMenus.parse(site,body,enriched.ref),seasonPages.firstOrNull()?.let{PageCursor(site.id,it)},seasons=declaredSeasonNumbers.distinct().sorted())
     }
     private fun hdfSeriesData(d:Document,parent:Card):JSONObject?{
         val slug=parent.ref.pageUrl.toHttpUrl().encodedPath.trim('/').split('/').getOrNull(1)
         val expected=TextKey.fold(ContentIdentity.cleanTitle(parent.title))
-        val data=findJson(HtmlData.flight(d.outerHtml())){it.has("seriesTitle")&&it.has("seasons")&&
-            (if(it.string("slug").isNotBlank())it.string("slug")==slug else TextKey.fold(ContentIdentity.cleanTitle(it.string("seriesTitle")))==expected)}
+        val data=findJson(HtmlData.flight(d.outerHtml())){
+            val localized=it.optJSONArray("sezonlar")!=null&&it.string("diziId").isNotBlank()&&it.string("slug")==slug
+            val legacy=it.has("seriesTitle")&&it.optJSONArray("seasons")!=null&&
+                (if(it.string("slug").isNotBlank())it.string("slug")==slug else TextKey.fold(ContentIdentity.cleanTitle(it.string("seriesTitle")))==expected)
+            localized||legacy
+        }
         if(data==null&&HtmlData.schemas(d).any{it.string("@type")=="TVSeries"&&it.optInt("numberOfEpisodes")>0})throw DataFailure(FailureKind.PARSE,"Dizinin bölüm verisi bu sayfayla eşleştirilemedi","episodes")
         return data
     }
     fun episodes(d:Document,parent:Card,seriesData:JSONObject?=null):List<Episode> {
+        if(site.id in TrackedCatalog.sites)return TrackedCatalog(site).episodes(d,parent)
         if(site.id=="diziboxum")return DiziboxumParser.episodes(site,d,parent)
         if(site.id=="dizipal")return DizipalParser.episodes(site,d,parent)
         val base=d.baseUri().takeIf{site.catalogUrl(it)!=null}?:parent.ref.pageUrl
         val defaultSeason=base.toHttpUrl().queryParameter("sezon")?.toIntOrNull()?.takeIf{it in 1..1000}?:parent.sourceSeason?:
             Regex("(\\d+)\\s*\\.?\\s*Sezon",RegexOption.IGNORE_CASE).find(parent.title)?.groupValues?.get(1)?.toIntOrNull()?:1
-        val selector=when(site.id){"ddizi"->".content_ .dizi-boxpost-cat > a";"dizibox"->"a.season-episode";"fixfullfilmizle"->".leftC .moviefilm .movief a";"filmmakinesi"->site.episodeSelector;else->site.episodeSelector+", .seasons a[href], .p-v12-ep-list a[href]"}
+        val selector=when(site.id){"ddizi"->EpisodePages.DDIZI_EPISODE_LINKS;"dizibox"->"a.season-episode";"fixfullfilmizle"->".leftC .moviefilm .movief a";"filmmakinesi"->site.episodeSelector;else->site.episodeSelector+", .seasons a[href], .p-v12-ep-list a[href]"}
         val out=d.select(selector).filter{a->a.parents().none{it.normalName() in setOf("aside","footer")||Regex("recommend|related|benzer|oneri").containsMatchIn(it.className().lowercase()+" "+it.id().lowercase())}}.mapNotNull { a ->
             val page=site.catalogUrl(a.attr("href"),base)?:return@mapNotNull null
+            if(site.id=="hdfilmdelisi"&&!page.toHttpUrl().encodedPath.startsWith(parent.ref.pageUrl.toHttpUrl().encodedPath.trimEnd('/')+"/sezon-"))
+                return@mapNotNull null
             val label=HtmlData.text(a)
             val pair=episodeNumber(label,page,defaultSeason)?:return@mapNotNull null
-            val c=Card(ContentRef(site.id,page,ContentKind.EPISODE),label.ifBlank{"${parent.title} · ${pair.season}×${pair.number}"},HtmlData.image(a,page).ifBlank{parent.poster},parent.year,language=parent.language,seriesIdentity=ContentIdentity.key(parent),episodeNumber=pair)
+            val c=Card(ContentRef(site.id,page,ContentKind.EPISODE),label.ifBlank{"${parent.title} · ${pair.season}×${pair.number}"},HtmlData.image(a,page).ifBlank{parent.poster},parent.year,language=parent.language,seriesIdentity=ContentIdentity.key(parent),episodeNumber=pair,seriesRef=parent.ref.takeIf{site.id=="ddizi"})
             Episode(c,parent.ref,pair)
         }.toMutableList()
         if(site.id=="hdfilmdelisi") {
             val data=seriesData?:hdfSeriesData(d,parent)
-            data?.optJSONArray("seasons")?.values()?.filterIsInstance<JSONObject>()?.forEach { season ->
-                season.optJSONArray("episodes")?.values()?.filterIsInstance<JSONObject>()?.forEach { e ->
+            (data?.optJSONArray("seasons")?:data?.optJSONArray("sezonlar"))?.values()?.filterIsInstance<JSONObject>()?.forEach { season ->
+                (season.optJSONArray("episodes")?:season.optJSONArray("bolumler"))?.values()?.filterIsInstance<JSONObject>()?.forEach { e ->
                     val s=e.optInt("sezonNo",season.optInt("sezonNo"));val n=e.optInt("bolumNo")
                     if(season.optInt("sezonNo")>0&&s!=season.optInt("sezonNo"))throw DataFailure(FailureKind.PARSE,"Bölüm kendi sezonuyla eşleşmiyor","episodes")
                     if(s in 1..1000&&n in 1..100000) { val p=parent.ref.pageUrl.trimEnd('/')+"/sezon-$s/bolum-$n"

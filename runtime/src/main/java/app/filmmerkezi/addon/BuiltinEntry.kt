@@ -30,7 +30,8 @@ class BuiltinEntry:Plugin {
             "parseList"->PluginWire.page(CatalogParser(site).list(o.getString("body"),o.getString("url")))
             "resolve"->Contracts.source(AddonSourceResolver(network,YoutubeResolver{option,url->PluginWire.source(JSONObject(host.resolver("youtube","resolve",JSONObject().put("option",Contracts.option(option)).put("url",url).toString())))}).resolve(PluginWire.option(o.getJSONObject("option"))))
             "collections"->{
-                val home=network.request(WebRequest(site.base+"/",site.base+"/"));var cards=CatalogParser(site).list(home.body,home.url).cards.filter{it.ref.kind==ContentKind.COLLECTION}
+                val path=if(site.id=="p016")"/seckiler/" else "/"
+                val home=network.request(WebRequest(site.base+path,site.base+"/"));var cards=CatalogParser(site).list(home.body,home.url).cards.filter{it.ref.kind==ContentKind.COLLECTION}
                 if(cards.isEmpty())cards=listOf("izleme sırası","top").flatMap{p.search(it).cards.filter{it.ref.kind==ContentKind.COLLECTION}}.distinctBy{it.ref.id}
                 JSONObject().put("cards",JSONArray(cards.map(Contracts::card)))
             }

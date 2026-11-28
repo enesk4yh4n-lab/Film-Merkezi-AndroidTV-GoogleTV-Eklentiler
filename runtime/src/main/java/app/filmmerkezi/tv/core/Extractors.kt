@@ -3,12 +3,19 @@ package app.filmmerkezi.tv.core
 import app.filmmerkezi.tv.SiteHttpPolicy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import java.net.URLDecoder
+
+private val liderStreamCallback = Regex(
+    """\s*\)\s*\.then\(\s*function\s*\(\s*(\w+)\s*\)\s*\{\s*return\s+\1\.json\(\)\s*;?\s*\}\s*\)\s*""" +
+        """\.then\(\s*function\s*\(\s*(\w+)\s*\)\s*\{\s*if\s*\(\s*\2\.url\s*\)\s*\{\s*""" +
+        """(?:\w+\s*=\s*)?new\s+Playerjs\(\s*\{\s*id\s*:\s*["']([A-Za-z0-9_-]{1,64})["'][^{}]{0,2048}?,\s*file\s*:\s*\2\.url\s*[,}]"""
+)
 
 /** Shared native extractors. Only the selected option is resolved; no media preflight. */
 class AddonSourceResolver(private val network:WebTransport,private val youtube:YoutubeResolver=NewPipeYoutube(network)) {
@@ -19,9 +26,17 @@ class AddonSourceResolver(private val network:WebTransport,private val youtube:Y
             option.copy(content=option.content.copy(pageUrl=site.catalogUrl(option.content.pageUrl)?:option.content.pageUrl),url=site.catalogUrl(option.url)?:option.url)
         }
         val site=Sites.get(current.content.siteId)
-        val result=follow(current,current.url,current.content.pageUrl,mutableSetOf(),0)
+        val sourcePage=current.fields["sourcePage"]?.takeIf{
+            EpisodePages.sameEpisodePage(site,current.content.pageUrl,it)
+        }?:current.content.pageUrl
+        val result=follow(current,current.url,sourcePage,mutableSetOf(),0)
+        val mediaHost=result.url.toHttpUrl().host
+        if(site.id=="ddizi"&&(mediaHost=="googlevideo.com"||mediaHost.endsWith(".googlevideo.com"))&&
+            result.expiresAt?.let{it<=System.currentTimeMillis()}==true)
+            throw DataFailure(FailureKind.ACCESS,"Site, geçerlilik süresi dolmuş bir GoogleVideo adresi verdi","media-expiry")
+        val caption=current.fields["caption"]?.takeIf{site.catalogUrl(it)!=null&&it.toHttpUrl().encodedPath.endsWith(".srt",true)}
         result.copy(url=SiteAddresses.rebase(result.url,site),referer=SiteAddresses.rebase(result.referer,site),
-            subtitles=result.subtitles.map{it.copy(url=SiteAddresses.rebase(it.url,site))})
+            subtitles=(result.subtitles+listOfNotNull(caption?.let{Subtitle(it,"Türkçe","tr","srt")})).distinctBy{it.url}.map{it.copy(url=SiteAddresses.rebase(it.url,site))})
     }
     private fun source(option:SourceOption,url:String,referer:String,subtitles:List<Subtitle> = emptyList(),type:StreamType?=null,requirements:Set<String> = emptySet()):ResolvedSource {
         val safe=publicUrl(url,referer)?:throw DataFailure(FailureKind.PARSE,"Medya adresi geçersiz","decode")
@@ -49,9 +64,100 @@ class AddonSourceResolver(private val network:WebTransport,private val youtube:Y
             if(json.string("status")!="success"||json.string("videoId")!=id)throw DataFailure(FailureKind.PARSE,"PlayTurka video kimliği eşleşmiyor","decode")
             return source(option,json.getJSONObject("files").getString("masterUrl"),url,requirements=setOf("header-context"))
         }
-        val response=network.request(WebRequest(u.toString(),referer,headers=mapOf("User-Agent" to SiteAddresses.userAgent(u))))
+        val site=Sites.get(option.content.siteId)
+        val rapidvid = u.host == "rapidvid.org" || u.host == "rapidvid.net"
+        val trDiziJw = site.id == "p012" && site.catalogUrl(u.toString()) != null && u.query == null &&
+            Regex("/player/oynat/[a-f0-9]{24,64}/?").matches(u.encodedPath)
+        val userAgent = when {
+            rapidvid && site.id == "fullhdfilmizlesene" -> SiteHttpPolicy.forProvider(site.id)
+            trDiziJw -> SiteHttpPolicy.BROWSER_USER_AGENT
+            else -> SiteAddresses.userAgent(u)
+        }
+        val response=network.request(WebRequest(u.toString(),referer,headers=mapOf("User-Agent" to userAgent)))
+        val episodeId=EpisodePages.episodePageKey(site,u.toString())
+        if(episodeId!=null&&EpisodePages.episodePageKey(site,response.url)!=episodeId)
+            throw DataFailure(FailureKind.PARSE,"Kaynak sayfası başka bir bölüme yönlendi","resolve")
         var body=unwrap(response.body)
-        if(KatrePlayer.accepts(u.toString()))return KatrePlayer.resolve(option,body,response.url)
+        if(option.extractor=="spidypro"&&site.id=="p008"&&u.host=="spidypro.com"){
+            val doc=HtmlData.document(body,response.url)
+            val gate=doc.title()=="Redirecting..."&&doc.selectFirst("#loading[role=status]")!=null&&
+                doc.select("script").any{script->
+                    val code=script.data()
+                    code.contains("ad-overlay")&&code.contains("getComputedStyle")&&code.contains("document.referrer")
+                }
+            if(gate)throw DataFailure(FailureKind.ACCESS,"SpidyPro oynatıcıyı açmak için tarayıcı doğrulaması istiyor","embed")
+        }
+        if(option.extractor=="hdf2-vip"&&u.host=="vidload.top"){
+            val video=option.fields["video"]?.takeIf{it.matches(Regex("[a-zA-Z0-9]{8,64}"))}
+                ?:throw DataFailure(FailureKind.PARSE,"VIP video kimliği eksik","decode")
+            if(u.encodedPath!="/player/$video"||response.url.toHttpUrl().encodedPath!=u.encodedPath||
+                HtmlData.document(body,response.url).getElementById("player")==null)
+                throw DataFailure(FailureKind.PARSE,"VIP oynatıcı eşleşmedi","decode")
+            val config=TrackedSources.jsonLiteral(body,"""\bjwplayer\(\s*['"]player['"]\s*\)\s*\.setup\(\s*JSON\.parse\(\s*""")
+                ?:throw DataFailure(FailureKind.PARSE,"VIP oynatma verisi bulunamadı","decode")
+            fun allowed(raw:String)=publicUrl(raw,response.url)?.toHttpUrl()?.takeIf{target->
+                target.scheme=="https"&&target.port==443&&setOf("haccodavayup.shop","pictureupfans.site").any{target.host==it||target.host.endsWith(".$it")}
+            }
+            val media=allowed(config.string("file"))?.takeIf{Regex("/"+Regex.escape(video)+"(?:/|_)").containsMatchIn(it.encodedPath)&&it.encodedPath.endsWith(".m3u8",true)}
+                ?:throw DataFailure(FailureKind.PARSE,"VIP medya kimliği eşleşmedi","decode")
+            val subtitles=tracks(config.optJSONArray("tracks"),response.url).filter{allowed(it.url)!=null}
+            return source(option,media.toString(),response.url,subtitles,StreamType.HLS)
+        }
+        if(option.extractor=="lider-vod"&&u.host=="play.liderfilm.cc"){
+            val raw=Literals.after(body,"""\bvar\s+CFG\s*=\s*\{\s*src\s*:\s*""") as? String
+            val media=publicUrl(raw.orEmpty(),response.url)?.toHttpUrl()?.takeIf{
+                it.host==u.host&&it.encodedPath=="/player/stream.php"&&publicUrl(it.queryParameter("url").orEmpty())!=null
+            }?:throw DataFailure(FailureKind.PARSE,"Lider HLS yayın adresi bulunamadı","decode")
+            return source(option,media.toString(),response.url,type=StreamType.HLS,requirements=setOf("extensionless-hls"))
+        }
+        if(option.extractor=="lider-playerjs"&&site.id=="p018"&&u.host=="play.liderfilm.cc"){
+            val frame=response.url.toHttpUrl()
+            if(frame.scheme!="https"||frame.host!=u.host||frame.port!=443||frame.encodedPath!=u.encodedPath)
+                throw DataFailure(FailureKind.UNSUPPORTED,"PlayerJS farklı bir oynatıcıya yönlendi","embed")
+            val doc=HtmlData.document(body,response.url)
+            val config=playerJsConfig(doc) ?: return resolveLiderNestedPlayer(option,frame,doc)
+            val media=publicUrl(config.string("file"),response.url)?.toHttpUrl()?.takeIf{
+                it.scheme=="https"&&it.port==443&&it.host==frame.host
+            }?:throw DataFailure(FailureKind.UNSUPPORTED,"PlayerJS doğrulanmış bir medya adresi sunmadı","decode")
+            val type=when{
+                media.encodedPath.endsWith(".mp4",true)->StreamType.MP4
+                media.encodedPath.endsWith(".m3u8",true)->StreamType.HLS
+                else->throw DataFailure(FailureKind.UNSUPPORTED,"PlayerJS medya biçimi doğrulanamadı","decode")
+            }
+            val playable=source(option,media.toString(),response.url,type=type)
+            return if(doc.selectFirst("meta[name=referrer][content=no-referrer]")!=null)playable.copy(referer="")else playable
+        }
+        if(option.content.siteId=="p016"&&u.host=="player.nadirfilm.com"){
+            val key=u.queryParameter("tmdb")?.takeIf{it.matches(Regex("""\d{1,12}"""))}
+            val raw=HtmlData.document(body,response.url).selectFirst("#player_iframe[data-api]")?.attr("data-api").orEmpty()
+            val api=publicUrl(raw,response.url)?.toHttpUrl()?.takeIf{key!=null&&it.host==u.host&&
+                it.encodedPath=="/vs_src.php"&&it.queryParameter("type")=="movie"&&it.queryParameter("id")==key}
+                ?:throw DataFailure(FailureKind.PARSE,"NadirFilm oynatıcı kimliği eşleşmedi","decode")
+            val data=JSONObject(network.request(WebRequest(api.toString(),response.url)).body)
+            val next=publicUrl(data.string("src"),response.url)?.toHttpUrl()
+            if(next?.host=="stellarconductornexus.com")
+                throw DataFailure(FailureKind.ACCESS,"NadirFilm oynatıcıyı açmak için tarayıcı doğrulaması istiyor","access")
+            if(next==null||next.host !in setOf("ok.ru","dzen.ru","vidmoly.biz","vidmoly.me","vidmoly.net"))
+                throw DataFailure(FailureKind.UNSUPPORTED,"NadirFilm oynatıcısı doğrulanmış bir medya adresi sunmadı","decode")
+            return follow(option,next.toString(),response.url,visited,depth+1)
+        }
+        if(option.content.siteId in setOf("p016","filmizlebabam")&&u.host=="dzen.ru"){
+            val id=Regex("""^/embed/([A-Za-z0-9_-]{8,80})$""").matchEntire(u.encodedPath)?.groupValues?.get(1)
+            val meta=HtmlData.document(body,response.url).selectFirst("meta[property=og:vh-uuid]")?.attr("content")
+            if(id==null||id!=meta)throw DataFailure(FailureKind.PARSE,"Dzen video kimliği eşleşmedi","decode")
+            // Separate script blocks use the same local variable for environment, logging and video data.
+            val params=Regex("""\bvar\s+_params\s*=\s*\(\s*""")
+            val data=params.findAll(body).take(16).firstNotNullOfOrNull{match->
+                val value=runCatching{Literals.read(body,match.range.last+1).value as? JSONObject}.getOrNull()
+                value?.optJSONObject("ssrData")?.optJSONObject("exportResponse")?.optJSONObject("content")
+                    ?.takeIf{it.string("content_id")==id}
+            }
+            val stream=data?.optJSONArray("streams")?.values()?.filterIsInstance<JSONObject>()
+                ?.firstOrNull{it.string("type")=="hls"&&publicUrl(it.string("url"),response.url)!=null}
+                ?:throw DataFailure(FailureKind.UNSUPPORTED,"Dzen bu video için HLS kaynağı vermedi","decode")
+            return source(option,stream.string("url"),response.url,type=StreamType.HLS)
+        }
+        if(option.content.siteId=="diziboxum"&&KatrePlayer.accepts(u.toString()))return KatrePlayer.resolve(option,body,u.toString())
         if(u.host.removePrefix("www.") in setOf("vidmoly.biz","vidmoly.net","vidmoly.me","vidmoly.to")&&Regex("<title>\\s*Access Blocked\\s*</title>",RegexOption.IGNORE_CASE).containsMatchIn(body))
             throw DataFailure(FailureKind.ACCESS,"Kaynak bu siteden oynatmaya izin vermiyor","access")
         if(body.trimStart().startsWith("#EXTM3U"))return source(option,response.url,referer)
@@ -83,7 +189,7 @@ class AddonSourceResolver(private val network:WebTransport,private val youtube:Y
             }
             return source(option,media.toString(),url,subs,StreamType.HLS,setOf("referer")).copy(expiresAt=token.optLong("expires_in").takeIf{it in 1..86400}?.let{System.currentTimeMillis()+it*1000})
         }
-        if(u.host in setOf("vidara.to","gasobni.com") && u.encodedPath.startsWith("/e/")) {
+        if((u.host in setOf("vidara.to","gasobni.com")||option.content.siteId=="filmizlebabam"&&u.host=="mxzhxco8dft.com") && u.encodedPath.startsWith("/e/")) {
             val id=u.encodedPath.substringAfterLast('/')
             if(!body.contains("/api/stream")||!body.contains("streaming_url"))throw DataFailure(FailureKind.PARSE,"Vidara aktif oynatıcı ayarı yok","decode")
             val api=u.newBuilder().encodedPath("/api/stream").query(null).build().toString()
@@ -147,15 +253,15 @@ class AddonSourceResolver(private val network:WebTransport,private val youtube:Y
             val subs=runCatching{Literals.after(config,"[\"']?tracks[\"']?\\s*:\\s*") as? JSONArray}.getOrNull()
             return source(option,target.toString(),url,tracks(subs,url),StreamType.HLS,setOf("referer","accept-any"))
         }
-        if(u.host in setOf("rapidvid.org","rapidvid.net")) {
+        if(rapidvid) {
             val encoded=Literals.after(body,"\\bwindow\\._p8\\s*=\\s*") as? String
             if(encoded!=null) {
                 val data=JSONObject(atom(encoded));val mount=data.string("m")
                 if(mount.isBlank() || HtmlData.document(body,url).getElementById(mount)==null)throw DataFailure(FailureKind.PARSE,"Atom oynatıcı kimliği eşleşmiyor","decode")
-                return source(option,data.string("cm"),url,tracks(data.optJSONArray("ct"),url))
+                return source(option,data.string("cm"),url,tracks(data.optJSONArray("ct"),url)).copy(userAgent=userAgent)
             }
             val legacy=Regex("""\bjwSetup\.sources\s*=\s*\[[\s\S]{0,2000}?['"]file['"]\s*:\s*av\(\s*""").find(body)
-            if(legacy!=null)return source(option,atom(Literals.read(body,legacy.range.last+1).value.toString()),url)
+            if(legacy!=null)return source(option,atom(Literals.read(body,legacy.range.last+1).value.toString()),url).copy(userAgent=userAgent)
         }
         if(u.host=="oynat.fixfullfilmizle.net") {
             val target=Literals.after(body,"\\biframe\\.src\\s*=\\s*") as? String
@@ -166,7 +272,8 @@ class AddonSourceResolver(private val network:WebTransport,private val youtube:Y
         if(u.host in setOf("player.filmizle.in","myplayersvideo.xyz","matrudas.com")) {
             val packed=Literals.unpack(body)
             val bronze=jw(body,url)
-            if(bronze!=null && bronze.first.toHttpUrl().encodedPath.endsWith(".mp4",true))return source(option,bronze.first,url,bronze.second,type=StreamType.MP4)
+            if(bronze!=null && bronze.url.toHttpUrl().encodedPath.endsWith(".mp4",true))
+                return source(option,bronze.url,url,bronze.subtitles,type=StreamType.MP4)
             val marker=Regex("""\bFirePlayer\(\s*""").find(packed)?:throw DataFailure(FailureKind.PARSE,"FirePlayer verisi yok","decode")
             val id=Literals.read(packed,marker.range.last+1);val comma=packed.indexOf(',',id.end)
             val config=Literals.read(packed,comma+1).value as? JSONObject?:throw DataFailure(FailureKind.PARSE,"FirePlayer ayarı geçersiz","decode")
@@ -202,20 +309,83 @@ class AddonSourceResolver(private val network:WebTransport,private val youtube:Y
                 data.optJSONArray("subs")?.values()?.filterIsInstance<JSONObject>()?.mapNotNull { s->publicUrl(s.string("src"),url)?.let{Subtitle(it,s.string("label"),s.string("lang"))} }?:emptyList(),
                 requirements=setOf("segment-byte-limit:12582912","hls-key-headers"))
         }
-        val decodedVix=vixolity(body)
+        val decodedVix=if(u.host=="pl.vixolity.com")vixolity(body)else null
         if(decodedVix!=null)return follow(option,decodedVix,url,visited,depth+1)
         val jw=jw(body,url)
-        if(jw!=null)return source(option,jw.first,url,jw.second,requirements=if(jw.first.contains(".txt"))setOf("extensionless-hls")else emptySet())
+        if(jw!=null){
+            val resolved=source(option,jw.url,response.url,jw.subtitles,jw.type,
+                requirements=if(jw.type!=StreamType.MP4&&jw.url.contains(".txt"))setOf("extensionless-hls")else emptySet())
+            val headers = if (trDiziJw) resolved.copy(userAgent = userAgent) else resolved
+            return if(site.id in setOf("ddizi","p012")&&jw.noReferer)headers.copy(referer="")else headers
+        }
         val seeded=SeededDecoder.media(Literals.unpack(body),url).firstOrNull { mediaUrl(it) }
         if(seeded!=null)return source(option,seeded,url,requirements=setOf("seeded-data","extensionless-hls"))
-        val menu=if(u.host==Sites.get(option.content.siteId).base.toHttpUrl().host)SourceMenus.parse(Sites.get(option.content.siteId),body,option.content,url)else emptyList()
+        val menu=if(u.host==site.base.toHttpUrl().host)SourceMenus.parse(site,body,option.content,response.url)else emptyList()
         val direct=menu.firstOrNull{it.url!=url && it.extractor!="page"}
-        if(direct!=null)return follow(option,direct.url,url,visited,depth+1)
+        if(direct!=null)return follow(option,direct.url,response.url,visited,depth+1)
+        if(episodeId!=null)throw DataFailure(FailureKind.UNSUPPORTED,"Bu bölümün etkin oynatıcısı bulunamadı","decode")
         val frames=SourceMenus.frames(body,url)
         if(frames.isNotEmpty())return follow(option,frames.first(),url,visited,depth+1)
         if(body.contains("Lütfen bekleyiniz",true) && depth<3){delay(1100);visited.remove(url);return follow(option,url,referer,visited,depth+1)}
         throw DataFailure(FailureKind.UNSUPPORTED,"Aktif kaynak biçimi tanınamadı","decode")
     }
+
+    private fun playerJsConfig(doc: org.jsoup.nodes.Document): JSONObject? {
+        val calls=Regex("""\bnew\s+Playerjs\(\s*(?=\{)""")
+        return doc.select("script:not([src])").asSequence().flatMap{script->
+            calls.findAll(script.data()).mapNotNull{call->
+                runCatching{Literals.read(script.data(),call.range.last+1).value as? JSONObject}.getOrNull()
+            }
+        }.firstOrNull{it.string("id").isNotBlank()&&doc.getElementById(it.string("id"))!=null}
+    }
+
+    private suspend fun resolveLiderNestedPlayer(option: SourceOption, frame: HttpUrl, doc: org.jsoup.nodes.Document): ResolvedSource {
+        val embeddedHost = "x.ag2m5.cfd"
+        val mediaHost = "qp21.uk-traffic-076.com"
+        val nested = doc.select("iframe[data-frame-src], iframe[src]").mapNotNull { node ->
+            val address = node.attr("data-frame-src").ifBlank { node.attr("src") }
+            publicUrl(address,frame.toString())?.toHttpUrl()?.takeIf {
+                it.scheme == "https" && it.port == 443 && it.host == embeddedHost && it.fragment == null &&
+                    it.encodedPath == frame.encodedPath
+            }
+        }.distinct().singleOrNull()
+            ?: throw DataFailure(FailureKind.UNSUPPORTED,"PlayerJS bölümüne bağlı oynatıcı bulunamadı","embed")
+        val player = network.request(WebRequest(nested.toString(),frame.toString()))
+        val playerUrl = player.url.toHttpUrlOrNull()
+        if (playerUrl != nested) throw DataFailure(FailureKind.PARSE,"PlayerJS oynatıcı kimliği eşleşmedi","embed")
+        val playerDoc = HtmlData.document(player.body,player.url)
+        val hasLiteralConfig = playerJsConfig(playerDoc) != null
+        val fetchCall = Regex("""\bfetch\(\s*(?=['"]/dl\?op=get_stream&)""")
+        val endpoint = playerDoc.select("script:not([src])").asSequence().flatMap { script ->
+            val code = script.data()
+            fetchCall.findAll(code).mapNotNull { call ->
+                val value = runCatching { Literals.read(code,call.range.last+1) }.getOrNull() ?: return@mapNotNull null
+                if (!hasLiteralConfig) {
+                    val id = liderStreamCallback.matchAt(code,value.end)?.groupValues?.get(3) ?: return@mapNotNull null
+                    if (playerDoc.getElementById(id) == null) return@mapNotNull null
+                }
+                value.value as? String
+            }
+        }.mapNotNull { path -> publicUrl(path,player.url)?.toHttpUrl() }.filter {
+            it.scheme == "https" && it.port == 443 && it.host == embeddedHost && it.fragment == null &&
+                it.encodedPath == "/dl" && it.queryParameter("op") == "get_stream" &&
+                it.queryParameter("view_id")?.matches(Regex("[0-9]{1,12}")) == true && !it.queryParameter("hash").isNullOrBlank()
+        }.distinct().toList().singleOrNull()
+            ?: throw DataFailure(FailureKind.UNSUPPORTED,"PlayerJS oynatma isteği bulunamadı","decode")
+        val reply = network.request(WebRequest(endpoint.toString(),player.url))
+        if (reply.url.toHttpUrlOrNull() != endpoint) throw DataFailure(FailureKind.PARSE,"PlayerJS oynatma isteği farklı adrese yönlendi","decode")
+        val data = runCatching { JSONObject(reply.body) }.getOrElse {
+            throw DataFailure(FailureKind.PARSE,"PlayerJS oynatma yanıtı okunamadı","decode",cause=it)
+        }
+        if (data.string("error") == "unauthorized") throw DataFailure(FailureKind.ACCESS,"Oynatma sunucusu erişimi reddetti","access")
+        val media = publicUrl(data.string("url"))?.toHttpUrl()?.takeIf {
+            data.string("error").isBlank() && it.scheme == "https" && it.port == 443 && it.fragment == null &&
+                it.encodedPath.endsWith(".m3u8",true) && (it.host == embeddedHost || it.host == mediaHost && it.encodedPath.startsWith("/hls2/"))
+        } ?: throw DataFailure(FailureKind.UNSUPPORTED,"PlayerJS doğrulanmış bir HLS adresi sunmadı","decode")
+        val referer = if (media.host == mediaHost) "https://$embeddedHost/" else player.url
+        return source(option,media.toString(),referer,type=StreamType.HLS)
+    }
+
     private fun unwrap(input:String):String {
         var body=input
         repeat(3) {
@@ -256,20 +426,47 @@ class AddonSourceResolver(private val network:WebTransport,private val youtube:Y
         throw DataFailure(FailureKind.PARSE,"OK.ru etkin video verisi yok","decode")
     }
     private fun vixolity(body:String):String? {
-        val calls=Regex("""\}\)\('([0-9a-f]+)',\s*(\d{1,3})\);""").findAll(body)
+        val calls=Regex("""\}\)\('([0-9a-f]{2,1048576})',\s*(\d{1,3})\);""",RegexOption.IGNORE_CASE).findAll(body)
+        val current=body.contains("charCodeAt")&&body.contains("reverse(")&&
+            Regex("""<div\s+id=["']oynatici["']""").containsMatchIn(body)
+        fun validated(value:String?):String?=value?.takeIf{
+            it.matches(Regex("""https://ha\.vixolity\.com/vs/[A-Za-z0-9_-]+(?:/s[1-9]\d*/e0*[1-9]\d*)?"""))
+        }
         for(c in calls) {
             val ascii=runCatching{Literals.hex(c.groupValues[1]).toString(Charsets.ISO_8859_1).reversed()}.getOrNull()?:continue
             val shift=c.groupValues[2].toInt();if(shift>255)continue
             val decoded=runCatching{Literals.base64(ascii).map{(((it.toInt() and 255)-shift+256) and 255).toChar()}.joinToString("")}.getOrNull()?:continue
-            val m=Regex("""setupJWPlayer\(\s*['"]playerArea['"]\s*,\s*\{\s*file\s*:\s*""").find(decoded)?:continue
-            val u=runCatching{Literals.read(decoded,m.range.last+1).value as? String}.getOrNull()
-            if(u!=null && u.startsWith("https://ha.vixolity.com/vs/"))return u
+            val old=runCatching{Literals.after(decoded,"""setupJWPlayer\(\s*['"]playerArea['"]\s*,\s*\{\s*file\s*:\s*""") as? String}.getOrNull()
+            validated(old)?.let{return it}
+            if(current){
+                val config=runCatching{Literals.after(Literals.b64(decoded),"""\bvar\s+AYAR\s*=\s*""") as? JSONObject}.getOrNull()
+                validated(config?.string("kaynak"))?.let{return it}
+            }
         }
         return null
     }
-    private fun jw(input:String,page:String):Pair<String,List<Subtitle>>? {
+    private data class PlayerMedia(val url:String,val subtitles:List<Subtitle>,val type:StreamType?,val noReferer:Boolean)
+    private fun streamType(value:String)=when(value.lowercase()){
+        "mp4","video/mp4"->StreamType.MP4
+        "hls","m3u8","application/x-mpegurl","application/vnd.apple.mpegurl"->StreamType.HLS
+        "dash","mpd","application/dash+xml"->StreamType.DASH
+        else->null
+    }
+    private val playerField=Regex("""\s*,\s*['"]?([a-zA-Z_][a-zA-Z_0-9]*)['"]?\s*:\s*""")
+    private fun playerFileType(config:String,start:Int):StreamType? {
+        var at=start
+        repeat(8){
+            val field=playerField.matchAt(config,at)?:return null
+            val value=runCatching{Literals.read(config,field.range.last+1)}.getOrNull()?:return null
+            if(field.groupValues[1]=="type")return (value.value as? String)?.let(::streamType)
+            at=value.end
+        }
+        return null
+    }
+    private fun jw(input:String,page:String):PlayerMedia? {
         val body=runCatching{Literals.unpack(input)}.getOrDefault(input)
         val doc=HtmlData.document(body,page)
+        val noReferer=doc.selectFirst("meta[name=referrer][content=no-referrer]")!=null
         val active=Regex("""(?:jwplayer\(\s*['"]([^'"]+)['"]\s*\)|\bplayer)\s*\.setup\s*\(\s*""")
         for(m in active.findAll(body)) {
             if(m.groupValues[1].isNotBlank() && doc.getElementById(m.groupValues[1])==null)continue
@@ -284,17 +481,26 @@ class AddonSourceResolver(private val network:WebTransport,private val youtube:Y
             }
             val end=SeededDecoder.closingBrace(body,start);if(end<0)continue
             val config=body.substring(start,end+1)
-            val files=Regex("""(?:^|[,{])\s*(?:file|['"]file['"])\s*:\s*""").findAll(config).mapNotNull { f->
-                val literal=runCatching{Literals.read(config,f.range.last+1).value as? String}.getOrNull()
-                literal?:Regex("""^\s*([\w$]+)\s*[,}]""").find(config.substring(f.range.last+1))?.groupValues?.get(1)?.let{SeededDecoder.bindings(body,page)[it]}
-            }.toList()
+            val chosen=Regex("""(?:^|[,{])\s*(?:file|['"]file['"])\s*:\s*""").findAll(config).firstNotNullOfOrNull { f->
+                val at=f.range.last+1
+                val literal=runCatching{Literals.read(config,at)}.getOrNull()
+                val variable=if(literal?.value !is String)Regex("""^\s*([\w$]+)(?=\s*[,}])""").find(config.substring(at))else null
+                val file=(literal?.value as? String)?:variable?.groupValues?.get(1)?.let{SeededDecoder.bindings(body,page)[it]}
+                val address=file?.let{publicUrl(it,page)}?:return@firstNotNullOfOrNull null
+                if(address.toHttpUrl().encodedPath.endsWith(".vtt",true)||address.toHttpUrl().encodedPath.endsWith(".srt",true))
+                    return@firstNotNullOfOrNull null
+                val end=variable?.range?.last?.plus(at+1)?:literal?.end?:return@firstNotNullOfOrNull null
+                address to playerFileType(config,end)
+            }?:continue
             val captions=runCatching{Literals.after(config,"\\btracks\\s*:\\s*") as? JSONArray}.getOrNull()
                 ?:Regex("""\btracks\s*:\s*([\w$]+)""").find(config)?.groupValues?.get(1)?.let{runCatching{Literals.after(body,"\\b(?:var|let|const)\\s+"+Regex.escape(it)+"\\s*=\\s*") as? JSONArray}.getOrNull()}
-            val chosen=files.firstOrNull{publicUrl(it,page)!=null && !it.endsWith(".vtt") && !it.endsWith(".srt")}
-            if(chosen!=null)return (publicUrl(chosen,page)?:continue) to tracks(captions,page)
+            return PlayerMedia(chosen.first,tracks(captions,page),chosen.second,noReferer)
         }
-        val media=doc.select("video source[src], video[src]").firstOrNull()?.attr("src")?.let{publicUrl(it,page)}
-        if(media!=null)return media to doc.select("video track[src]").mapNotNull { t->publicUrl(t.attr("src"),page)?.let{Subtitle(it,t.attr("label"),t.attr("srclang"))} }
+        val media=doc.selectFirst("video source[src], video[src]")
+        val mediaUrl=media?.attr("src")?.let{publicUrl(it,page)}
+        if(mediaUrl!=null)return PlayerMedia(mediaUrl,doc.select("video track[src]").mapNotNull { t->
+            publicUrl(t.attr("src"),page)?.let{Subtitle(it,t.attr("label"),t.attr("srclang"))}
+        },streamType(media.attr("type")),noReferer)
         return null
     }
     private fun mediaUrl(url:String):Boolean = Regex("\\.(m3u8|mp4|mpd)(?:$|[?#])|/(?:hls|list)/|master\\.(?:txt|json)",RegexOption.IGNORE_CASE).containsMatchIn(url)

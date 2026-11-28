@@ -60,7 +60,7 @@ class AddonSiteProvider(private val template:SiteSpec,private val network:WebTra
         addressChanged()
         if(kind==ContentKind.EPISODE)throw DataFailure(FailureKind.PARSE,"Bölümleri dizi detayından alın","browse")
         if(kind==ContentKind.SERIES && site.seriesPath==null)return CatalogPage(emptyList())
-        if(kind==ContentKind.MOVIE && site.id in setOf("dizibox","ddizi","diziboxum"))return CatalogPage(emptyList())
+        if(kind==ContentKind.MOVIE && !site.supports(kind))return CatalogPage(emptyList())
         val url=next?.also{validateCursor(it)}?.url?:site.base+(if(kind==ContentKind.SERIES)site.seriesPath?:site.list else site.list)
         if(kind==ContentKind.SERIES && site.id in setOf("ddizi","fixfullfilmizle","lovefilmizle")){
             val response=fetch(WebRequest(url,site.base+"/"))
@@ -84,7 +84,7 @@ class AddonSiteProvider(private val template:SiteSpec,private val network:WebTra
         return withContext(parsing){SiteFilters.options(site,response.body)}.also{filterOptions=System.currentTimeMillis() to it}
     }
     suspend fun filtered(q:CatalogQuery,next:PageCursor?,check:()->Boolean,unverifiedCandidates:Boolean=false):CatalogPage {
-        if(q.kind==ContentKind.MOVIE&&site.id in setOf("dizibox","ddizi","diziboxum")||q.kind==ContentKind.SERIES&&site.seriesPath==null)return CatalogPage(emptyList())
+        if(!site.supports(q.kind))return CatalogPage(emptyList())
         if(next!=null){validateCursor(next);if(next.fields["_query"]!=q.signature)throw DataFailure(FailureKind.PARSE,"Devam sayfası başka filtreye ait","pagination")}
         val options=if(q.filtered)options()else FilterOptions()
         val plan=SiteFilters.plan(site,q,options,next)
@@ -112,16 +112,96 @@ class AddonSiteProvider(private val template:SiteSpec,private val network:WebTra
     private fun validateCursor(cursor:PageCursor) {
         if(cursor.siteId!=site.id || site.catalogUrl(cursor.url)==null || cursor.page !in 1..100000)throw DataFailure(FailureKind.PARSE,"Geçersiz devam bağlantısı","pagination")
     }
+    private suspend fun recoverDdiziEpisode(card:Card,parent:ContentRef):String? {
+        val key=EpisodePages.ddiziNamedEpisodeKey(site,card.ref.pageUrl)?:return null
+        val number=card.episodeNumber?:return null
+        if(parent.siteId!=site.id||parent.kind!=ContentKind.SERIES)return null
+        val archive=site.catalogUrl(parent.pageUrl)?:return null
+        if(!EpisodePages.sameArchive(site,archive,archive))return null
+        val series=Card(parent,card.title)
+        val queue=ArrayDeque(listOf(archive))
+        val visited=mutableSetOf<String>()
+        repeat(3){
+            val next=queue.removeFirstOrNull()?:return null
+            visited.add(EpisodePages.key(site,next))
+            val response=fetch(WebRequest(next,site.base+"/",timeoutMs=5000))
+            if(!EpisodePages.sameArchive(site,archive,response.url))return null
+            val (candidates,pages)=withContext(parsing){
+                val doc=HtmlData.document(response.body,response.url)
+                val canonical=doc.selectFirst("link[rel=canonical]")?.attr("href")?.takeIf(String::isNotBlank)
+                if(canonical!=null&&!EpisodePages.sameArchive(site,archive,canonical))
+                    return@withContext emptyList<String>() to emptyList<String>()
+                val matches=doc.select(EpisodePages.DDIZI_EPISODE_LINKS).mapNotNull{link->
+                    val address=site.catalogUrl(link.attr("href"),response.url)?:return@mapNotNull null
+                    if(address==card.ref.pageUrl||EpisodePages.ddiziNamedEpisodeKey(site,address)!=key)
+                        return@mapNotNull null
+                    val label=HtmlData.text(link).ifBlank{link.attr("title")}
+                    address.takeIf{
+                        CatalogParser.episodeNumber(label,address,number.season)==number
+                    }
+                }.distinct()
+                matches to EpisodePages.links(site,doc,series,response.url)
+            }
+            if(candidates.isNotEmpty())return candidates.singleOrNull()
+            pages.filter{EpisodePages.key(site,it) !in visited&&it !in queue}.forEach(queue::addLast)
+        }
+        return null
+    }
+
     override suspend fun detail(card:Card):Detail = detailMutex.withLock {
         addressChanged()
         lastDetail?.takeIf { it.second.card.ref.id==card.ref.id && System.currentTimeMillis()-it.first<60000 }?.let{return@withLock it.second}
         val generation=synchronized(detailCacheLock){trimGeneration}
-        val response=fetch(WebRequest(card.ref.pageUrl,site.base+"/"))
-        val resolved=if(response.url!=card.ref.pageUrl&&site.id=="ddizi"&&card.ref.kind==ContentKind.SERIES){
-            if(!EpisodePages.sameArchive(site,card.ref.pageUrl,response.url))throw DataFailure(FailureKind.PARSE,"Yanıt başka bir diziye yönlendi","detail")
-            card.copy(ref=card.ref.copy(pageUrl=response.url))
-        }else SiteAddresses.card(card)
-        var value=withContext(parsing){AdultContent.detail(response.body,PageIdentity.attach(response.body,parser.detail(response.body,resolved),card))}
+        val current=SiteAddresses.card(card)
+        val (requested,response)=try {
+            current.ref.pageUrl to fetch(WebRequest(current.ref.pageUrl,site.base+"/"))
+        } catch(e:DataFailure) {
+            if(e.httpCode!=404||current.ref.kind!=ContentKind.EPISODE)throw e
+            val parent=current.seriesRef?:throw e
+            val replacement=recoverDdiziEpisode(current,parent)?:throw e
+            replacement to fetch(WebRequest(replacement,parent.pageUrl,timeoutMs=5000))
+        }
+        val episodeId=EpisodePages.episodePageKey(site,requested)
+        val resolved=when {
+            episodeId!=null -> {
+                if(EpisodePages.episodePageKey(site,response.url)!=episodeId)
+                    throw DataFailure(FailureKind.PARSE,"Yanıt başka bir bölüme yönlendi","detail")
+                current.copy(ref=current.ref.copy(pageUrl=response.url))
+            }
+            response.url!=card.ref.pageUrl&&site.id=="ddizi"&&card.ref.kind==ContentKind.SERIES -> {
+                if(!EpisodePages.sameArchive(site,card.ref.pageUrl,response.url))throw DataFailure(FailureKind.PARSE,"Yanıt başka bir diziye yönlendi","detail")
+                current.copy(ref=current.ref.copy(pageUrl=response.url))
+            }
+            else -> current
+        }
+        var value=withContext(parsing){
+            val parsed=parser.detail(response.body,resolved)
+            if(requested!=current.ref.pageUrl) {
+                val number=checkNotNull(current.episodeNumber)
+                if(CatalogParser.episodeNumber(parsed.card.title,response.url,number.season)!=number)
+                    throw DataFailure(FailureKind.PARSE,"Arşivden bulunan sayfa kayıtlı bölümle eşleşmedi","detail")
+            }
+            val primary=if(site.id in TrackedCatalog.sites)parsed else PageIdentity.attach(response.body,parsed,card)
+            AdultContent.detail(response.body,ContentMetadata.enrich(primary,response.body))
+        }
+        if(episodeId!=null&&resolved.ref.pageUrl!=current.ref.pageUrl){
+            val stable=value.card.ref.copy(pageUrl=current.ref.pageUrl)
+            value=value.copy(card=value.card.copy(ref=stable),options=value.options.map{
+                it.copy(content=stable,fields=it.fields+("sourcePage" to resolved.ref.pageUrl))
+            })
+        }
+        if(site.id=="p018"&&value.card.ref.kind==ContentKind.SERIES){
+            value=value.copy(episodePages=withContext(parsing){
+                val d=HtmlData.document(response.body,response.url)
+                val id=Regex("""\b(?:const|var|let)\s+seriesId\s*=\s*(\d{1,12})\s*;""")
+                    .find(response.body)?.groupValues?.get(1)
+                val existing=value.episodes.map{it.number.season}.toSet()
+                val remaining=d.select(".season-selector [data-season]").mapNotNull{it.attr("data-season").toIntOrNull()}
+                    .filter{it in 1..1000&&it !in existing}.distinct().take(20)
+                if(id==null&&remaining.isNotEmpty())throw DataFailure(FailureKind.PARSE,"Sezon kimliği eksik","episodes")
+                remaining.map{site.base+"/api/get_season_episodes.php?series_id="+id+"&season="+it}
+            })
+        }
         if(site.id=="diziboxum"){
             val options=mutableListOf<SourceOption>()
             for(option in value.options){
@@ -151,6 +231,22 @@ class AddonSiteProvider(private val template:SiteSpec,private val network:WebTra
                 val response=fetch(WebRequest(url,card.ref.pageUrl))
                 if(site.id=="ddizi"&&!EpisodePages.sameArchive(site,first.card.ref.pageUrl,response.url))throw DataFailure(FailureKind.PARSE,"Bölüm sayfası başka diziye yönlendi","episodes")
                 val pages=withContext(parsing) {
+                    if(site.id=="p018"&&url.toHttpUrl().encodedPath=="/api/get_season_episodes.php"){
+                        val season=url.toHttpUrl().queryParameter("season")?.toIntOrNull()
+                        val data=org.json.JSONObject(response.body)
+                        val items=data.optJSONArray("episodes")
+                        if(season !in 1..1000||data.optInt("season_number")!=season||!data.optBoolean("success")||items==null)
+                            throw DataFailure(FailureKind.PARSE,"Sezon yanıtı eşleşmedi","episodes")
+                        items.values().filterIsInstance<org.json.JSONObject>()
+                            .filter{it.string("status")=="published"}.forEach { row ->
+                                val number=row.optInt("episode_number")
+                                if(number in 1..100000){
+                                    val address=first.card.ref.pageUrl.trimEnd('/')+"/sezon-"+season+"/bolum-"+number
+                                    out.add(TrackedCatalog(site).episode(first.card,address,checkNotNull(season),number,row.string("title")))
+                                }
+                            }
+                        return@withContext emptyList()
+                    }
                     val doc=HtmlData.document(response.body,response.url)
                     out.addAll(parser.episodes(doc,first.card))
                     EpisodePages.links(site,doc,first.card,response.url)

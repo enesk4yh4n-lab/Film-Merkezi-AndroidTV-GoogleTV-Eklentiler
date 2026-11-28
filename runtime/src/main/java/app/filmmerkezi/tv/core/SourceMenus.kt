@@ -11,10 +11,12 @@ object SourceMenus {
     fun knownFrame(url:String):Boolean = runCatching { val u=url.toHttpUrl();u.scheme=="https" && (hosts.containsMatchIn(u.host)||YoutubeLinks.videoId(url)!=null||KatrePlayer.accepts(url)||Sites.all.any{it.catalogUrl(url)!=null}) }.getOrDefault(false)
     fun frames(body:String,page:String):List<String> {
         val doc=HtmlData.document(body,page)
-        return doc.select("iframe").mapNotNull { node ->
+        val frames=doc.select("iframe").mapNotNull { node ->
             val raw=listOf("data-litespeed-src","data-src","data-frame-src","data-keremiya-src","src").firstNotNullOfOrNull{node.attr(it).takeIf{v->v.isNotBlank()}}?:return@mapNotNull null
             (YoutubeLinks.frameUrl(raw,page)?:publicUrl(raw,page))?.takeIf(::knownFrame)
-        }.distinct().take(16)
+        }.distinct()
+        if(frames.size>128)throw DataFailure(FailureKind.LIMIT,"128 kaynak sınırı aşıldı; liste kesilmedi","sources")
+        return frames
     }
     fun parse(site:SiteSpec,body:String,content:ContentRef,pageUrl:String=content.pageUrl):List<SourceOption> {
         val d=HtmlData.document(body,pageUrl);val result=mutableListOf<SourceOption>()
@@ -26,6 +28,7 @@ object SourceMenus {
             "diziboxum" -> return DiziboxumParser.sources(site,d,content)
             "dizipal" -> return DizipalParser.sources(site,body,content,pageUrl)
             "filmizlebabam" -> {
+                if(d.selectFirst("[data-player]")!=null)return TrackedSources.options(site,d,content)
                 d.select("[data-pv]").forEach{node->
                     val code=node.attr("data-pv")
                     if(code.matches(Regex("[A-Za-z0-9_-]{8,80}")))add("https://play2.pilavyerplay.top/assets/js/s.php?s="+code,"Pilavyer",extractor="pilavyer")
@@ -36,13 +39,15 @@ object SourceMenus {
                 val number=Regex("/([1-9]\\d*)/$").find(current.encodedPath)?.groupValues?.get(1)?.toInt()?:1
                 val currentFrames=frames(body,pageUrl)
                 val menu=d.select(if(site.id=="filmcibaba")".p-v12-ep-list a.post-page-numbers" else "a[aria-label=page][href]")
-                if(menu.isNotEmpty() && content.kind!=ContentKind.SERIES) {
+                // The same menu is a film's alternate players OR a series' episode list.
+                // Other episode pages must never become fallback sources of this episode.
+                if(menu.isNotEmpty() && content.kind==ContentKind.MOVIE) {
                     add(pageUrl,if(site.id=="filmcibaba")if(number==1)"Hotstream" else "Hotstream $number" else d.selectFirst(".selected a[aria-label=page]")?.text()?:"Kaynak $number",
                         site.id+"-page-"+number,"page")
                     menu.forEach { a ->
                         val u=site.catalogUrl(a.attr("href"),pageUrl)?:return@forEach
                         val path=u.toHttpUrl().encodedPath;val n=Regex("/([1-9]\\d*)/$").find(path)?.groupValues?.get(1)?.toInt()?:1
-                        if(n<=12 && path.replace(Regex("/[1-9]\\d*/$"),"/")==basePath && u!=pageUrl)
+                        if(path.replace(Regex("/[1-9]\\d*/$"),"/")==basePath && u!=pageUrl)
                             add(u,if(site.id=="filmcibaba")if(n==1)"Hotstream" else "Hotstream $n" else a.text(),site.id+"-page-"+n,"page")
                     }
                 } else currentFrames.forEachIndexed { i,u->add(u,if(site.id=="filmcibaba")"Hotstream" else "Kaynak ${i+1}") }
@@ -71,10 +76,27 @@ object SourceMenus {
                 d.select(".sources [id^=source]").forEach { n ->
                     val id=n.id();if(!id.matches(Regex("source\\d+")))return@forEach
                     val marker=Regex("\\$\\(\\s*['\"]#"+Regex.escape(id)+"['\"]\\s*\\)\\s*\\.click\\(").find(body)?:return@forEach
-                    val fragment=body.substring(marker.range.first,(marker.range.first+6000).coerceAtMost(body.length))
+                    val tail=body.substring(marker.range.last+1,(marker.range.last+6001).coerceAtMost(body.length))
+                    val fragment=tail.substringBefore(".removeClass(")
                     val m=Regex("\\.html\\(\\s*").find(fragment)?:return@forEach
-                    val html=runCatching{Literals.read(fragment,m.range.last+1).value as? String}.getOrNull()?:return@forEach
-                    frames(html,pageUrl).firstOrNull()?.let{add(it,n.text()+" · "+if(n.attr("dil")=="trd")"Türkçe Dublaj" else "Türkçe Altyazılı",site.id+"-"+id)}
+                    val html=runCatching{Literals.read(fragment,m.range.last+1).value as? String}.getOrNull()
+                    val normalFrame=html?.let{frames(it,pageUrl).firstOrNull()}
+                    // The MailRu handler publishes single-quoted iframe attributes inside a single-quoted literal.
+                    val mailFrame=if(normalFrame==null&&TextKey.fold(n.text())=="mailru"){
+                        val raw=fragment.substring(m.range.last+1).trimStart()
+                        val match=Regex("""^['"]<!--baslik:MailRu,(?:trd|tra)-->(<iframe\b[^>]*>\s*</iframe>)""",RegexOption.IGNORE_CASE).find(raw)
+                        match?.groupValues?.get(1)?.let{frames(it,pageUrl).singleOrNull()}?.takeIf{
+                            val u=it.toHttpUrl()
+                            u.host=="my.mail.ru"&&u.encodedPath.matches(Regex("""/video/embed/\d+/?"""))
+                        }
+                    }else null
+                    (normalFrame?:mailFrame)?.let{
+                        val label=n.text()+" · "+if(n.attr("dil")=="trd")"Türkçe Dublaj" else "Türkçe Altyazılı"
+                        if(TextKey.fold(n.text()).contains("sinefilm")||it.toHttpUrl().host.endsWith(".popcornvakti.net")||it.toHttpUrl().host=="popcornvakti.net"){
+                            result.add(SourceOption(site.id+"-"+id,content,label,it,state=OptionState.UNSUPPORTED,
+                                reason="Sinefilm bu paket için doğrulanmış kaynak kapsamı dışında."))
+                        }else add(it,label,site.id+"-"+id)
+                    }
                 }
             }
             "fullhdfilmizlesene" -> {
@@ -116,9 +138,9 @@ object SourceMenus {
                 }
                 // Current player props carry sources[]; older pages used videoUrl.
                 // Stay inside the access guard so a recommendation cannot supply media.
-                val player=findJson(guard?:graph){it.has("isCopyrighted")&&(it.has("sources")||it.has("videoUrl"))}
+                val player=findJson(guard?:graph){(it.has("isCopyrighted")||it.has("telif"))&&(it.has("sources")||it.has("videoUrl"))}
                     ?:findJson(guard?:graph){it.has("videoUrl")}
-                if(player?.optBoolean("isCopyrighted")==true)return listOf(SourceOption(site.id+"-restricted",content,"Kaynak kullanılamıyor",pageUrl,
+                if(player?.optBoolean("isCopyrighted")==true||player?.optBoolean("telif")==true)return listOf(SourceOption(site.id+"-restricted",content,"Kaynak kullanılamıyor",pageUrl,
                     state=OptionState.ACCESS_REQUIRED,reason="Site bu içeriği oynatmaya kapatmış."))
                 player?.string("videoUrl")?.takeIf(::knownFrame)?.let{add(it,"Vixolity")}
                 player?.optJSONArray("sources")?.values()?.filterIsInstance<JSONObject>()?.forEach { item->
@@ -126,8 +148,23 @@ object SourceMenus {
                 }
             }
             "ddizi" -> {
-                frames(body,pageUrl).filter{YoutubeLinks.videoId(it)!=null}.forEach{add(it,"YouTube",extractor="youtube")}
-                d.select(".parts a[href]").forEach { a->site.catalogUrl(a.attr("href"),pageUrl)?.let{add(it,a.text(),extractor="page")} }
+                val episodeId=EpisodePages.ddiziEpisodeId(site,pageUrl)?:return emptyList()
+                d.select(".video-g iframe, #content iframe").forEach { node ->
+                    val raw=listOf("data-litespeed-src","data-frame-src","data-src","src")
+                        .firstNotNullOfOrNull{node.attr(it).takeIf(String::isNotBlank)}?:return@forEach
+                    val player=site.catalogUrl(raw,pageUrl)?.takeIf{
+                        val u=it.toHttpUrl()
+                        u.query==null&&u.encodedPath.matches(Regex("""/player/oynat/[a-f0-9]{24,64}/?"""))
+                    }
+                    if(player!=null)add(player,"Kaynak ${result.size+1}")
+                    else YoutubeLinks.frameUrl(raw,pageUrl)?.let{add(it,"YouTube",extractor="youtube")}
+                }
+                d.select(".parts a[href]").forEach { a->
+                    val target=site.catalogUrl(a.attr("href"),pageUrl)?:return@forEach
+                    if(target!=pageUrl&&EpisodePages.ddiziEpisodeId(site,target)==episodeId)add(target,a.text(),extractor="page")
+                }
+                if(result.size>128)throw DataFailure(FailureKind.LIMIT,"128 kaynak sınırı aşıldı; liste kesilmedi","sources")
+                return result
             }
         }
         if(result.isEmpty()) {
@@ -137,6 +174,7 @@ object SourceMenus {
             }
         }
         if(result.isEmpty() && (body.contains("jwplayer(") || body.contains("FirePlayer(") || body.contains("<video")))add(pageUrl,"Ana kaynak","${site.id}-direct","page")
-        return result.take(16)
+        if(result.size>128)throw DataFailure(FailureKind.LIMIT,"128 kaynak sınırı aşıldı; liste kesilmedi","sources")
+        return result
     }
 }

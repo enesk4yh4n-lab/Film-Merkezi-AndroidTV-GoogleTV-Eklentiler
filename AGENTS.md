@@ -1,0 +1,9 @@
+# Film Merkezi Android eklenti kuralları
+
+- Paket/veri sözleşmesi ana Android projesindeki `docs/android-plugin-sdk.md`, içerik kabul kuralları `docs/eklenti-veri-ve-birlestirme-kurallari.md` dosyalarındadır. Bu çalışma alanında komşu `../Android/` altındadır. Eklenti hazırlamadan veya güncellemeden önce ikisini oku.
+- Her site için gerçek içerik türlerini, varsa ayrı dizi/sezon sayfalarını ve koleksiyonları incele. Bölümleri bağımsız film kartları yapma; koleksiyonları oynatma akışına sokma. Sitede bulunan yıl, özgün ad, IMDb kimliği/puanı ve tür verisini doğru al; olmayan bilgiyi uydurma.
+- Kaynak ailelerini ve incelenen içerikteki bütün kaynak seçeneklerini say. İlk çalışan kaynakta durma. Çözülemeyen/desteklenmeyen seçeneği sessizce çıkarma; açıklamasıyla kabul raporuna al. Farklı bölümün adresi aynı bölümün yedek kaynağı olamaz.
+- Kullanıcının verdiği P/R kodlarını ve kalıcı site kimliğini koru. Alan adı değişikliği yeni eser/site kimliği üretmez. Kaynak, manifest ve imzalı indeksin görevlerini ayır; mevcut kapsamı kendiliğinden genişletme.
+- Değişen eklenti ve davranış için hedefli fixture/canlı kontroller yap. Kaynak URL'si elde edilmesi, oynatmanın doğrulandığı anlamına gelmez. Yeni host yardımcısı gerektiren kodu eski APK'da çalışıyormuş gibi sunma.
+- [Ortak GitHub yayın kurallarını](../Android/docs/github-yayin-kurallari.md) uygula. Herkese açık README ve güncelleme açıklamasında P/R kodlarını ve kullanıcıya yansıyan kısa özeti kullan. Ayrıntılı test ve kaynak dökümlerini ana Android projesindeki yerel `reports/` dizininde tut.
+- Açık GitHub yayın onayı olmadan üretim paketlerine, indekslere ve sürüm numaralarına yazma veya push/yayın yapma. Deneme paketleri yeni QA dizininde, ayrı test yayıncısıyla hazırlanır; anahtarlar depo dışında kalır. Üretim sürümü ve minimum APK uyumu yayın onayında belirlenir.

@@ -79,9 +79,11 @@ object DiziboxumParser {
     fun sources(site:SiteSpec,d:Document,ref:ContentRef):List<SourceOption> {
         if(ref.kind!=ContentKind.EPISODE)return emptyList()
         val out=mutableListOf<SourceOption>();val current=ref.pageUrl.toHttpUrl();val base=current.encodedPath.replace(Regex("/[1-9]\\d*/$"),"/")
-        d.select(".video-container iframe[src]").forEachIndexed{i,node->
-            val url=publicUrl(node.attr("src"),ref.pageUrl)?:return@forEachIndexed
-            val known=SourceMenus.knownFrame(url);val label=HtmlData.text(d,".r-ep-kaynak").ifBlank{"Kaynak ${i+1}"}
+        d.select(".video-container iframe").forEachIndexed{i,node->
+            val raw=listOf("data-frame-src","data-src","src").firstNotNullOfOrNull{node.attr(it).takeIf(String::isNotBlank)}
+                ?:return@forEachIndexed
+            val url=publicUrl(raw,ref.pageUrl)?:return@forEachIndexed
+            val known=SourceMenus.knownFrame(url);val label=KatrePlayer.label(url)?:HtmlData.text(d,".r-ep-kaynak").ifBlank{"Kaynak ${i+1}"}
             out.add(SourceOption("diziboxum-frame-"+TextKey.hash(url),ref,label,url,state=if(known)OptionState.AVAILABLE else OptionState.UNSUPPORTED,reason=if(known)""else"Bu oynatıcı henüz desteklenmiyor."))
         }
         d.select("a.post-page-numbers[href], .page-links a[href], .video-parts a[href]").forEach{a->

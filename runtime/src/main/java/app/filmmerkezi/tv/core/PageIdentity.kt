@@ -32,7 +32,7 @@ object PageIdentity {
         // These two site contracts were verified against saved HTML and their primary year fields.
         val dateFields=listOf("startDate","releaseDate")+when(c.ref.siteId){"sinemacc"->listOf("dateCreated");"filmizlehell","hdfilmdelisi"->listOf("datePublished");else->emptyList()}
         val schemaYears=matching.flatMap{s->dateFields.mapNotNull{k->year(s.optString(k))}}.distinct()
-        val categoryYears=if(c.ref.siteId=="filmcibaba")d.select(".p-v12-meta a[rel~=category], .p-v12-info a[rel~=category], .p-v12-detail a[rel~=category], .meta-item a[rel~=category]").filter(::primary).mapNotNull{Regex("^((?:18|19|20)\\d{2}) Filmleri$",RegexOption.IGNORE_CASE).find(it.text())?.groupValues?.get(1)?.toIntOrNull()}.distinct()else emptyList()
+        val categoryYears=if(c.ref.siteId=="filmcibaba")d.select(".p-v12-meta a[rel~=category], .p-v12-info a[rel~=category], .p-v12-detail a[rel~=category], .meta-item a[rel~=category]").filter(::primary).mapNotNull{Regex("^((?:18|19|20)\\d{2}) Filmleri(?: izle)?$",RegexOption.IGNORE_CASE).find(it.text())?.groupValues?.get(1)?.toIntOrNull()}.distinct()else emptyList()
         val yearSelector=when(c.ref.siteId){"filmmakinesi"->"h1 .date";"fullhdfilmizlesene"->".film-info a.category[href*=yil/]";else->""}
         val domYears=when {
             c.ref.siteId=="dizibox"&&kind==ContentKind.SERIES->d.select(".tv-overview > .title-terms > .terms a[href]").filter(::primary).mapNotNull{a->

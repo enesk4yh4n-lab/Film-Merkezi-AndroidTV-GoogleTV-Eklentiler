@@ -95,13 +95,14 @@ object NativeParsers {
     }
     private fun filmCards(d: Element, page: String, hint: String?): JSONArray {
         val out = JSONArray(); val seen = HashSet<String>()
-        d.select("a.v100-card, .custom-card-wrapper, .v50-card").forEach { box ->
+        d.select("a.v100-card, .custom-card-wrapper, .v50-card, .news-card, .blog-card").forEach { box ->
             val a = if (box.tagName() == "a") box else box.selectFirst(".movie-title a, a[href]")
-            val u = safe(a?.attr("href"), page); val title = text(box, ".v100-title, .movie-title, .v50-details h3").ifEmpty { clean(a?.attr("title")) }
+            val u = safe(a?.attr("href"), page); val title = text(box, ".v100-title, .movie-title, .v50-details h3, .article-title, h2, h3").ifEmpty { clean(a?.attr("title")) }
             if (u.isEmpty() || title.isEmpty() || !seen.add(u)) return@forEach
             val article = URI(u).path.contains("/haber/")
-            if (article && !Regex("(?:kronolojik|izleme s[ıi]ras[ıi]|top\\s*\\d+|en iyi.+film)", RegexOption.IGNORE_CASE).containsMatchIn(title)) return@forEach
-            val type = if (article) "collection" else if (series(title, box, hint)) "series" else "movie"
+            val collection=app.filmmerkezi.tv.core.CatalogContent.collectionLink(title,u)
+            if (article && !collection) return@forEach
+            val type = if (collection) "collection" else if (series(title, box, hint)) "series" else "movie"
             val year = Regex("\\b(?:19|20)\\d{2}\\b").find(text(box, ".movie-release"))?.value?.toInt()
             out.put(objectOf("contentId" to filmId(u, type), "providerId" to "filmizle", "type" to type, "pageUrl" to u, "title" to title,
                 "titleAliases" to aliases(title), "yearHint" to if (type == "movie") yearHint(title, u) else null, "poster" to image(box, page, true),
