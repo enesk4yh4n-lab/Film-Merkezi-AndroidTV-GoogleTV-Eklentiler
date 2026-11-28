@@ -1,0 +1,43 @@
+{
+  "id": "p019",
+  "type": "site",
+  "name": "P019 · HDFilmCehennemi 2",
+  "version": "1.0.1",
+  "minAppVersionCode": 41,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://image.tmdb.org",
+    "https://www.hdfilmcehennemi2.biz"
+  ],
+  "site": {
+    "search": "/api/search?q=",
+    "list": "/filmler/",
+    "seriesPath": "/dizi-izle/",
+    "cards": "main.hdf-site-main article",
+    "title": "h3",
+    "contentPattern": "^/(?:dizi/[a-z0-9-]+(?:/sezon-[1-9][0-9]*/bolum-[1-9][0-9]*)?|[a-z0-9-]+-izle(?:-[a-z0-9-]+)?)/?$",
+    "episodeSelector": "main.hdf-site-main a[href*='/sezon-'][href*='/bolum-']",
+    "base": "https://www.hdfilmcehennemi2.biz",
+    "id": "p019",
+    "name": "HDFilmCehennemi 2"
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r019",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p019/1.0.1/plugin.jar",
+    "size": 185118,
+    "sha256": "1f914bbe1abd88baed7833db68ba877c49f1410ddca7eb2d147a4ac5f57d2932"
+  }
+}

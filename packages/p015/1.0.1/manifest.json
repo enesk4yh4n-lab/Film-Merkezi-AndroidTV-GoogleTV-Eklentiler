@@ -1,0 +1,50 @@
+{
+  "id": "p015",
+  "type": "site",
+  "name": "P015 · Filmi Full İzle",
+  "version": "1.0.1",
+  "minAppVersionCode": 41,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://www.filmifullizle.news"
+  ],
+  "site": {
+    "catalogAliases": [],
+    "cards": ".movie-box",
+    "year": ".film-yil",
+    "episodeSelector": "a[href*=\"-sezon-\"][href*=\"-bolum\"], a[href*=\"/bolum/\"], a.season-episode",
+    "detailTitle": "h1",
+    "description": "#film-aciklama",
+    "language": ".film-dil",
+    "list": "/",
+    "title": ".film-ismi",
+    "contentPattern": "^/film/[a-z0-9-]+\\.html$",
+    "search": "/?s=",
+    "imdb": ".imdb",
+    "genres": "[itemprop=genre], a[rel~=category], a[href*=\"/tur/\"], a[href*=\"/kategori/\"]",
+    "name": "Filmi Full İzle",
+    "seriesPath": null,
+    "id": "filmifullizle",
+    "poster": "img",
+    "base": "https://www.filmifullizle.news"
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r015",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p015/1.0.1/plugin.jar",
+    "size": 185118,
+    "sha256": "1f914bbe1abd88baed7833db68ba877c49f1410ddca7eb2d147a4ac5f57d2932"
+  }
+}

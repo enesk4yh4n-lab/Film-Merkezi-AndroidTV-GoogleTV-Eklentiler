@@ -1,0 +1,54 @@
+{
+  "id": "p013",
+  "type": "site",
+  "name": "P013 · Film İzle Babam",
+  "version": "1.0.1",
+  "minAppVersionCode": 41,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://filmizlebabam.click"
+  ],
+  "site": {
+    "catalogAliases": [
+      "www.filmizlebabam.com",
+      "filmizlebabam.com",
+      "www.filmizlebabam.icu"
+    ],
+    "cards": "a.group.block",
+    "year": "p",
+    "episodeSelector": "a[href*=\"-sezon-\"][href*=\"-bolum\"], a[href*=\"/bolum/\"], a.season-episode",
+    "detailTitle": "h1",
+    "description": "[itemprop=description]",
+    "language": ".badge-language",
+    "list": "/film-izle/",
+    "title": "h3",
+    "contentPattern": "^/(?:[a-z0-9-]+/|(?:dizi|bolum)/[a-z0-9-]+/)$",
+    "search": "/ara?q=",
+    "imdb": ".badge-rating",
+    "genres": "[itemprop=genre], a[rel~=category], a[href*=\"/tur/\"], a[href*=\"/kategori/\"]",
+    "name": "Film İzle Babam",
+    "seriesPath": "/yabanci-dizi-izle/",
+    "id": "filmizlebabam",
+    "poster": "img",
+    "base": "https://filmizlebabam.click"
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r013",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p013/1.0.1/plugin.jar",
+    "size": 185118,
+    "sha256": "1f914bbe1abd88baed7833db68ba877c49f1410ddca7eb2d147a4ac5f57d2932"
+  }
+}

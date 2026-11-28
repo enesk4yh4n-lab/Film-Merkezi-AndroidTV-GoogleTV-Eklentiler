@@ -1,0 +1,44 @@
+{
+  "id": "p017",
+  "type": "site",
+  "name": "P017 · Avşar Film",
+  "version": "1.0.1",
+  "minAppVersionCode": 41,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://i.ytimg.com",
+    "https://www.avsarfilm.com.tr"
+  ],
+  "site": {
+    "search": "/ara?search=",
+    "list": "/film",
+    "seriesPath": "/dizi",
+    "cards": ".movie-item",
+    "title": ".movie-title a",
+    "contentPattern": "^/watch/[a-z0-9-]+(?:/s[1-9][0-9]*e[1-9][0-9]*)?/?$",
+    "year": ".movie-year",
+    "episodeSelector": "[data-season-panel] a.av-episode[href]",
+    "base": "https://www.avsarfilm.com.tr",
+    "id": "p017",
+    "name": "Avşar Film"
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r017",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p017/1.0.1/plugin.jar",
+    "size": 185118,
+    "sha256": "1f914bbe1abd88baed7833db68ba877c49f1410ddca7eb2d147a4ac5f57d2932"
+  }
+}

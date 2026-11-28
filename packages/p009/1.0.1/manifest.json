@@ -1,0 +1,53 @@
+{
+  "id": "p009",
+  "type": "site",
+  "name": "P009 · HDFilmDelisi",
+  "version": "1.0.1",
+  "minAppVersionCode": 41,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://hdfilmdelisi1.com",
+    "https://img.hdfilmdelisi1.com"
+  ],
+  "site": {
+    "catalogAliases": [
+      "hdfilmdelisi1.com"
+    ],
+    "cards": "a.poster",
+    "year": ".year",
+    "episodeSelector": "a[href*=\"-sezon-\"][href*=\"-bolum\"], a[href*=\"/bolum/\"], a.season-episode",
+    "detailTitle": "h1",
+    "description": ".description, [itemprop=description]",
+    "language": ".language",
+    "list": "/",
+    "title": "h2, h3",
+    "contentPattern": "^/(film|dizi)/[a-z0-9-]+(?:/sezon-\\d+/bolum-\\d+)?$",
+    "search": "/api/search?q=",
+    "imdb": ".imdb",
+    "genres": "[itemprop=genre], a[rel~=category], a[href*=\"/tur/\"], a[href*=\"/kategori/\"]",
+    "name": "HDFilmDelisi",
+    "seriesPath": "/api/series/new?page=1",
+    "id": "hdfilmdelisi",
+    "poster": "img",
+    "base": "https://hdfilmdelisi1.com"
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r009",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p009/1.0.1/plugin.jar",
+    "size": 185118,
+    "sha256": "1f914bbe1abd88baed7833db68ba877c49f1410ddca7eb2d147a4ac5f57d2932"
+  }
+}

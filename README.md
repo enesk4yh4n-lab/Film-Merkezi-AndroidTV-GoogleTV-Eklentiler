@@ -4,14 +4,15 @@ Film Merkezi’nin imzalı katalog ve oynatma eklentileri.
 
 | Site eklentileri | Çözümleyiciler | Site / çözümleyici sürümü | Gerekli uygulama |
 | --- | --- | --- | --- |
-| P002–P003, P005 | R002–R003, R005 | 1.1.0 / 1.1.0 | 0.13.0+ |
-| P004 | R004 | 1.2.0 / 1.1.0 | 0.13.1+ |
-| P006, P008–P009 | R006, R008–R009 | 1.0.0 / 1.0.0 | 0.13.0+ |
-| P007 | R007 | 1.1.0 / 1.0.0 | 0.13.1+ |
-| P011–P019 | R011–R019 | 1.0.0 / 1.0.0 | 0.13.0+ |
+| P002 | R002 | 1.1.0 / 1.1.0 | 0.13.0+ |
+| P003 | R003 | 1.1.1 / 1.1.0 | 0.13.2+ |
+| P004 | R004 | 1.2.1 / 1.1.0 | 0.13.2+ |
+| P005 | R005 | 1.1.0 / 1.1.0 | 0.13.0+ |
+| P006 | R006 | 1.0.1 / 1.0.0 | 0.13.2+ |
+| P007 | R007 | 1.1.1 / 1.0.0 | 0.13.2+ |
+| P008–P009, P011–P019 | R008–R009, R011–R019 | 1.0.1 / 1.0.0 | 0.13.2+ |
 
-- P004’te Çizgi Film/Anime ve Drama/Short kategorileri güncellendi.
-- P007’de Drama/Short kategorisi güncellendi.
+- P003, P004, P006–P009 ve P011–P019, katalogda sunulduğunda daha küçük afişleri kullanıyor.
 - P008, P016 ve P018’de bazı oynatma seçenekleri sağlayıcı erişimine bağlı. Kullanılabilir diğer seçenekleri kaynak menüsünden seçebilirsiniz.
 
 ## Kurulum

@@ -5,7 +5,7 @@
   "id": "film-merkezi-android-eklentiler",
   "name": "Film Merkezi Android Eklentiler",
   "publicKey": "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAyLKJw9+q97QUKCs8HYDWTuNLBtKgaPKWX+yPfjV83IvQR9GmqUIzkX8kbcnrt8QvhsqZ1mXMgE3eonvMf2uTIvD643Jb1UvZbeS5ACwR+0Nl9DmhabmX2T0Kv2dDVeftbXQoxRYrXadjr0YLgvSTZ+qCWKYRs6/i9MpCpIaEg/PRvDPGjhXtthtlFlqZSv/a9tMmDeztDcoi7gZtL8lSC8DdnndGbKQOepD1AJv66ysl3vKNaNa1jmtwZ7QcJVJ+tkYgA8uP8QfqPiJYQzmcsuCx9/zH3qxG4CwT8weEG1YeV+kT+0CxRPWuYhxDaDZ/9z62FC2xlhCV7IKseWQXbkCUqHBsFD0OxZ5RUbdFUx3eU+H9x/iUhGWAK5R2wETV15Yhj8hOdrbHRy0qRkSgFrc5q/L5OrX5FCDDKnHtZdWjPRBsqk887oOi3sSTDUDykRpWTO1lkotLmvXqly3TLddiVleFVwsvnKut9I0Vz7Gvb0Dzdl23SseG10vur/IBAgMBAAE=",
-  "revision": 71,
+  "revision": 86,
   "packages": [
     {
       "id": "p002",
@@ -402,6 +402,141 @@
       "minAppVersionCode": 40,
       "manifest": "packages/p007/1.1.0/manifest.json",
       "manifestSha256": "3171f1fba1260722a3e037b22bb655d7c7c7222d9870de8af5a11eac0de431fd"
+    },
+    {
+      "id": "p003",
+      "type": "site",
+      "name": "P003 · NOW",
+      "version": "1.1.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p003/1.1.1/manifest.json",
+      "manifestSha256": "7815576fa79ae68ead38bfb7c48c55280268c637c7b03280e21132e885f021ec"
+    },
+    {
+      "id": "p004",
+      "type": "site",
+      "name": "P004 · Filmci Baba",
+      "version": "1.2.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p004/1.2.1/manifest.json",
+      "manifestSha256": "7f59dacbe936190eef17e0a012377c492885dc0fef3afe196bddf9daf8d77bae"
+    },
+    {
+      "id": "p006",
+      "type": "site",
+      "name": "P006 · DDizi",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p006/1.0.1/manifest.json",
+      "manifestSha256": "a31e99f967292ef7bc39122564abe6c1f672b981ebe64edaf94f0c1fb5255a8e"
+    },
+    {
+      "id": "p007",
+      "type": "site",
+      "name": "P007 · DiziBoxum",
+      "version": "1.1.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p007/1.1.1/manifest.json",
+      "manifestSha256": "ac474970f61e50e6b744d06b906fac68dd55d658e5940a20b022f5861b95d08a"
+    },
+    {
+      "id": "p008",
+      "type": "site",
+      "name": "P008 · Dizigom",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p008/1.0.1/manifest.json",
+      "manifestSha256": "c94177046e4622cc50486d630f17c97a9fbbe94f5304f81234cce3571f54dbbc"
+    },
+    {
+      "id": "p009",
+      "type": "site",
+      "name": "P009 · HDFilmDelisi",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p009/1.0.1/manifest.json",
+      "manifestSha256": "eea6946c9dd68857058550568c31191005cfbbb66684c042ef7341cddb9945bd"
+    },
+    {
+      "id": "p011",
+      "type": "site",
+      "name": "P011 · FullHDFilmizlesene",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p011/1.0.1/manifest.json",
+      "manifestSha256": "69112c19e4b6fc3ae9a2cade188e6b9698b466320eb2e2e63b154612b8898156"
+    },
+    {
+      "id": "p012",
+      "type": "site",
+      "name": "P012 · TRDiziİzle",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p012/1.0.1/manifest.json",
+      "manifestSha256": "7c2daa2698524ff49f08eb018520e6222a833f9161fe247ad302af047e68cf58"
+    },
+    {
+      "id": "p013",
+      "type": "site",
+      "name": "P013 · Film İzle Babam",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p013/1.0.1/manifest.json",
+      "manifestSha256": "3efdafba136396fc48194062e5f8107cd850290222d4fbdd8a596af06bf4ee3e"
+    },
+    {
+      "id": "p014",
+      "type": "site",
+      "name": "P014 · Film İzle Hell",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p014/1.0.1/manifest.json",
+      "manifestSha256": "0dec752f1c0c8d7d23dfd222db3b2681af2c6d799984143c4854b072792df91b"
+    },
+    {
+      "id": "p015",
+      "type": "site",
+      "name": "P015 · Filmi Full İzle",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p015/1.0.1/manifest.json",
+      "manifestSha256": "56e9bc216e7122d0cbdbdcb032e2e1bbed461fb50c5ca1d8d18f0e74e39f1a67"
+    },
+    {
+      "id": "p016",
+      "type": "site",
+      "name": "P016 · NadirFilm",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p016/1.0.1/manifest.json",
+      "manifestSha256": "6bf14841e691373fcec69e69ccf50cdff66b49bee9192adccfe9e54eb4ebe650"
+    },
+    {
+      "id": "p017",
+      "type": "site",
+      "name": "P017 · Avşar Film",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p017/1.0.1/manifest.json",
+      "manifestSha256": "55f44bc9608181e73dfc786b5982c1cd218a1577d7f0326314ae3690238b064c"
+    },
+    {
+      "id": "p018",
+      "type": "site",
+      "name": "P018 · LiderFilm",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p018/1.0.1/manifest.json",
+      "manifestSha256": "14de6d19f69c351127c255625d81a32c47bf5888a9c0ab8de8b06937bd946d3f"
+    },
+    {
+      "id": "p019",
+      "type": "site",
+      "name": "P019 · HDFilmCehennemi 2",
+      "version": "1.0.1",
+      "minAppVersionCode": 41,
+      "manifest": "packages/p019/1.0.1/manifest.json",
+      "manifestSha256": "46ef390e4e58585c09d145c7dee3e470a098fcdbd23d11a8df5715a45e1862a1"
     }
   ]
 }

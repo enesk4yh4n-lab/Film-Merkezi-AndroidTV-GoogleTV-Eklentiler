@@ -1,0 +1,44 @@
+{
+  "id": "p003",
+  "type": "site",
+  "name": "P003 · NOW",
+  "version": "1.1.1",
+  "minAppVersionCode": 41,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.pilot.PilotEntry",
+  "site": {
+    "id": "p003",
+    "name": "P003 · NOW",
+    "base": "https://www.nowtv.com.tr",
+    "search": "/arama",
+    "list": "/dizi-arsivi",
+    "cards": "section.videos .list-item",
+    "title": ".program-name",
+    "seriesPath": "/dizi-arsivi",
+    "contentPattern": "^/[^/]+/(?:izle|bolum/\\d+)$"
+  },
+  "origins": [
+    "https://www.nowtv.com.tr",
+    "https://nqg6bkpsnhen.merlincdn.net",
+    "https://tpsbayxekmes.merlincdn.net",
+    "https://tejedd76pluu.merlincdn.net"
+  ],
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r003",
+      "minVersion": "1.1.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "artifact": {
+    "path": "packages/p003/1.1.1/plugin.jar",
+    "size": 185118,
+    "sha256": "1f914bbe1abd88baed7833db68ba877c49f1410ddca7eb2d147a4ac5f57d2932"
+  }
+}
