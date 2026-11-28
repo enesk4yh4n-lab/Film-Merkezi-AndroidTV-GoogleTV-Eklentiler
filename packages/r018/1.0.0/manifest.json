@@ -1,0 +1,27 @@
+{
+  "id": "r018",
+  "type": "resolver",
+  "name": "R018 · LiderFilm kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://img.cdn77s.com",
+    "https://liderfilmizle.vip",
+    "https://play.liderfilm.cc",
+    "https://qp21.uk-traffic-076.com",
+    "https://x.ag2m5.cfd"
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [],
+  "artifact": {
+    "path": "packages/r018/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

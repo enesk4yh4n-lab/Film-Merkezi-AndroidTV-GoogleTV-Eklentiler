@@ -1,0 +1,35 @@
+{
+  "id": "r015",
+  "type": "resolver",
+  "name": "R015 · Filmi Full İzle kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://*.my.mail.ru",
+    "https://*.vmpx.online",
+    "https://my.mail.ru",
+    "https://ok.ru",
+    "https://ok6-31.vkuser.net",
+    "https://srt.vidmoly.me",
+    "https://vd{n}.okcdn.ru",
+    "https://vidmoly.biz",
+    "https://vidmoly.me",
+    "https://vidmoly.net",
+    "https://vidmoly.org",
+    "https://vidmoly.to",
+    "https://www.filmifullizle.news"
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [],
+  "artifact": {
+    "path": "packages/r015/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

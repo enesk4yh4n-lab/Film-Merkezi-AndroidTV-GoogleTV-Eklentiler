@@ -1,0 +1,43 @@
+{
+  "id": "p002",
+  "type": "site",
+  "name": "P002 · PuhuTV",
+  "version": "1.1.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.pilot.PilotEntry",
+  "site": {
+    "id": "p002",
+    "name": "P002 · PuhuTV",
+    "base": "https://puhutv.com",
+    "search": "/",
+    "list": "/",
+    "cards": "a",
+    "title": "h2",
+    "seriesPath": "/dizi",
+    "contentPattern": "^/[^/]+$"
+  },
+  "origins": [
+    "https://puhutv.com",
+    "https://appservice.puhutv.com",
+    "https://img-puhutv.mncdn.com"
+  ],
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r002",
+      "minVersion": "1.1.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "artifact": {
+    "path": "packages/p002/1.1.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

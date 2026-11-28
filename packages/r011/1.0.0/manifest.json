@@ -1,0 +1,31 @@
+{
+  "id": "r011",
+  "type": "resolver",
+  "name": "R011 · FullHDFilmizlesene kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://rapidvid.net",
+    "https://rapidvid.org",
+    "https://s2.cdnimage4487.shop",
+    "https://s2.images9202.shop",
+    "https://s27.cdnstatic5675.shop",
+    "https://s41.imgcdn4936.shop",
+    "https://s{n}.imgz.me",
+    "https://tv.rapidvid.org",
+    "https://www.fullhdfilmizlesene.now"
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [],
+  "artifact": {
+    "path": "packages/r011/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

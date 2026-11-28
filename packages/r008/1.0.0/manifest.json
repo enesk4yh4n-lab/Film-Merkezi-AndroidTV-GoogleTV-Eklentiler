@@ -1,0 +1,32 @@
+{
+  "id": "r008",
+  "type": "resolver",
+  "name": "R008 · Dizigom kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://pilavyer1.top",
+    "https://pilavyer2.top",
+    "https://pilavyer3.top",
+    "https://pilavyer4.top",
+    "https://pilavyer5.top",
+    "https://pilavyer6.top",
+    "https://pilavyerplay.top",
+    "https://play2.pilavyerplay.top",
+    "https://spidypro.com",
+    "https://www.dizigom.news"
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [],
+  "artifact": {
+    "path": "packages/r008/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

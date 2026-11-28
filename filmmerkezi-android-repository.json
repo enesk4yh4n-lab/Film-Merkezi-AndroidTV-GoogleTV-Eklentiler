@@ -5,7 +5,7 @@
   "id": "film-merkezi-android-eklentiler",
   "name": "Film Merkezi Android Eklentiler",
   "publicKey": "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAyLKJw9+q97QUKCs8HYDWTuNLBtKgaPKWX+yPfjV83IvQR9GmqUIzkX8kbcnrt8QvhsqZ1mXMgE3eonvMf2uTIvD643Jb1UvZbeS5ACwR+0Nl9DmhabmX2T0Kv2dDVeftbXQoxRYrXadjr0YLgvSTZ+qCWKYRs6/i9MpCpIaEg/PRvDPGjhXtthtlFlqZSv/a9tMmDeztDcoi7gZtL8lSC8DdnndGbKQOepD1AJv66ysl3vKNaNa1jmtwZ7QcJVJ+tkYgA8uP8QfqPiJYQzmcsuCx9/zH3qxG4CwT8weEG1YeV+kT+0CxRPWuYhxDaDZ/9z62FC2xlhCV7IKseWQXbkCUqHBsFD0OxZ5RUbdFUx3eU+H9x/iUhGWAK5R2wETV15Yhj8hOdrbHRy0qRkSgFrc5q/L5OrX5FCDDKnHtZdWjPRBsqk887oOi3sSTDUDykRpWTO1lkotLmvXqly3TLddiVleFVwsvnKut9I0Vz7Gvb0Dzdl23SseG10vur/IBAgMBAAE=",
-  "revision": 35,
+  "revision": 69,
   "packages": [
     {
       "id": "p002",
@@ -78,6 +78,312 @@
       "minAppVersionCode": 38,
       "manifest": "packages/r005/1.0.0/manifest.json",
       "manifestSha256": "123b35a9681db914b3f8a6f0f72d936b0cc5854a71fd4819e052e8bd64431746"
+    },
+    {
+      "id": "p002",
+      "type": "site",
+      "name": "P002 · PuhuTV",
+      "version": "1.1.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p002/1.1.0/manifest.json",
+      "manifestSha256": "65185057c2373df6b39991b940990a7bc5bafe1dc66c8271bd2c51792008d5c4"
+    },
+    {
+      "id": "r002",
+      "type": "resolver",
+      "name": "R002 · PuhuTV kaynakları",
+      "version": "1.1.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r002/1.1.0/manifest.json",
+      "manifestSha256": "f6b880cf593149e3a2b16a9067a33ff8de281ff453da03b8f0708e0b3cac6e2b"
+    },
+    {
+      "id": "p003",
+      "type": "site",
+      "name": "P003 · NOW",
+      "version": "1.1.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p003/1.1.0/manifest.json",
+      "manifestSha256": "4306830e4e0fda7f18ffa7b0e9f7ed31eedfde40fa68cce9c5146bb67fe064ad"
+    },
+    {
+      "id": "r003",
+      "type": "resolver",
+      "name": "R003 · NOW kaynakları",
+      "version": "1.1.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r003/1.1.0/manifest.json",
+      "manifestSha256": "95e7267f64fad9fee3c580b5ddc6b8784b5adbc03948bd15bf8eb1d9bdc82889"
+    },
+    {
+      "id": "p004",
+      "type": "site",
+      "name": "P004 · Filmci Baba",
+      "version": "1.1.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p004/1.1.0/manifest.json",
+      "manifestSha256": "b942bac187181959c6ddef9fa9efe35abf9d41bd95ae2e65b868a42b8e00f635"
+    },
+    {
+      "id": "r004",
+      "type": "resolver",
+      "name": "R004 · Filmci Baba kaynakları",
+      "version": "1.1.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r004/1.1.0/manifest.json",
+      "manifestSha256": "11f725ed82ea1b3ef45ff0f3e28dc93d2ddeff051ecfca5a22b5338360e20c67"
+    },
+    {
+      "id": "p005",
+      "type": "site",
+      "name": "P005 · Star TV",
+      "version": "1.1.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p005/1.1.0/manifest.json",
+      "manifestSha256": "e1bf5408eb6a3fe1e19f8554f6775e030634813f3a81f1d130bde36898a8d66a"
+    },
+    {
+      "id": "r005",
+      "type": "resolver",
+      "name": "R005 · Star TV kaynakları",
+      "version": "1.1.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r005/1.1.0/manifest.json",
+      "manifestSha256": "977e652d0305fc3cccf1bb9d843f35591200b76d957e2bef4d9d800426c392e5"
+    },
+    {
+      "id": "p006",
+      "type": "site",
+      "name": "P006 · DDizi",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p006/1.0.0/manifest.json",
+      "manifestSha256": "85c43181a0bbed122784f06306b00381dd7ae876a51d77af4d2b1af65c05e7af"
+    },
+    {
+      "id": "r006",
+      "type": "resolver",
+      "name": "R006 · DDizi kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r006/1.0.0/manifest.json",
+      "manifestSha256": "db38819a2342eaaafaeae3a9a2f71bf4c8e6992885fe9e2b4b0ebdeed4187c6c"
+    },
+    {
+      "id": "p007",
+      "type": "site",
+      "name": "P007 · DiziBoxum",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p007/1.0.0/manifest.json",
+      "manifestSha256": "489a560e724a55e678a3516384fa790f726e9bee09f93ddc3746a54bd74e9281"
+    },
+    {
+      "id": "r007",
+      "type": "resolver",
+      "name": "R007 · DiziBoxum kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r007/1.0.0/manifest.json",
+      "manifestSha256": "9d0ecb1ac05c4378d21c920d29deb14cca4fe56dff21cf702140c6a8d4958e79"
+    },
+    {
+      "id": "p008",
+      "type": "site",
+      "name": "P008 · Dizigom",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p008/1.0.0/manifest.json",
+      "manifestSha256": "8f91f01456014e431a984872eb48615c88869269936f859c0d20891253ee74a6"
+    },
+    {
+      "id": "r008",
+      "type": "resolver",
+      "name": "R008 · Dizigom kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r008/1.0.0/manifest.json",
+      "manifestSha256": "e5111b0fb37807e1be9c54c3e76ab77ad06ab42a1713588eca80ead5909723b8"
+    },
+    {
+      "id": "p009",
+      "type": "site",
+      "name": "P009 · HDFilmDelisi",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p009/1.0.0/manifest.json",
+      "manifestSha256": "58ac9bd65f8257779fbf35aa112e1335a2add032204c712423f550d1fb4013b3"
+    },
+    {
+      "id": "r009",
+      "type": "resolver",
+      "name": "R009 · HDFilmDelisi kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r009/1.0.0/manifest.json",
+      "manifestSha256": "6a414beeac9c34ff8c9a92cc7625893e94f3d5326d715b6c09f013396d6ea910"
+    },
+    {
+      "id": "p011",
+      "type": "site",
+      "name": "P011 · FullHDFilmizlesene",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p011/1.0.0/manifest.json",
+      "manifestSha256": "e07a7385d0c7836f6c487b1c93de326db13ff123f5401404e59d3c086720721d"
+    },
+    {
+      "id": "r011",
+      "type": "resolver",
+      "name": "R011 · FullHDFilmizlesene kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r011/1.0.0/manifest.json",
+      "manifestSha256": "0e2b83a28adca4c038332888c70490259756858cc1e9bedda582f96fa897c586"
+    },
+    {
+      "id": "p012",
+      "type": "site",
+      "name": "P012 · TRDiziİzle",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p012/1.0.0/manifest.json",
+      "manifestSha256": "d2888820b695374cb4e2ee0dbe5151e95cd23ac5166991be821ae585a6aa767a"
+    },
+    {
+      "id": "r012",
+      "type": "resolver",
+      "name": "R012 · TRDiziİzle kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r012/1.0.0/manifest.json",
+      "manifestSha256": "82c601a749dde3b305018d4ec94dd450f9f8bfed3af894ebea3a45fc1f44e449"
+    },
+    {
+      "id": "p013",
+      "type": "site",
+      "name": "P013 · Film İzle Babam",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p013/1.0.0/manifest.json",
+      "manifestSha256": "8653a869e2dd7a9105b0404a84bc75a02455adbd9b539c74f340f4011b8c2e09"
+    },
+    {
+      "id": "r013",
+      "type": "resolver",
+      "name": "R013 · Film İzle Babam kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r013/1.0.0/manifest.json",
+      "manifestSha256": "e0264564eec0b38c4dcafab3f0faaf480d2434655d02721acaa228d15af9691c"
+    },
+    {
+      "id": "p014",
+      "type": "site",
+      "name": "P014 · Film İzle Hell",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p014/1.0.0/manifest.json",
+      "manifestSha256": "da7042d2b9cfac144e3b1ab1df1a6755b966612f589c88b895dc92e7e1258bfa"
+    },
+    {
+      "id": "r014",
+      "type": "resolver",
+      "name": "R014 · Film İzle Hell kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r014/1.0.0/manifest.json",
+      "manifestSha256": "6d151f42bd00044231fc7eeb990221a32180e36ed4963fd92f83e9af496624fc"
+    },
+    {
+      "id": "p015",
+      "type": "site",
+      "name": "P015 · Filmi Full İzle",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p015/1.0.0/manifest.json",
+      "manifestSha256": "a99a215befb8d83949e41f548545239b7de8551d413a31e298bc9f2f99f14005"
+    },
+    {
+      "id": "r015",
+      "type": "resolver",
+      "name": "R015 · Filmi Full İzle kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r015/1.0.0/manifest.json",
+      "manifestSha256": "ab1254b4b35789f25360b2dc6261b32d436cb792656d9c30823fe172560d974e"
+    },
+    {
+      "id": "p016",
+      "type": "site",
+      "name": "P016 · NadirFilm",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p016/1.0.0/manifest.json",
+      "manifestSha256": "1f268dd5565159125db0d5fe38edcee4ccfffbc2b362b84c422b3c42cad05546"
+    },
+    {
+      "id": "r016",
+      "type": "resolver",
+      "name": "R016 · NadirFilm kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r016/1.0.0/manifest.json",
+      "manifestSha256": "0ede3baa0e6d8a1a4b5b0d3c49d05ec1c07022ef8c5fa48426a25ad28c0c3663"
+    },
+    {
+      "id": "p017",
+      "type": "site",
+      "name": "P017 · Avşar Film",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p017/1.0.0/manifest.json",
+      "manifestSha256": "e112529d28fca485beac07bcc53e42e76152187995a69be2a5991d1e5b584f7f"
+    },
+    {
+      "id": "r017",
+      "type": "resolver",
+      "name": "R017 · Avşar Film kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r017/1.0.0/manifest.json",
+      "manifestSha256": "728fdc340de2721dfdbd773605eae9434a1ef08a8b0a1c8b7f54a6268c18c0fc"
+    },
+    {
+      "id": "p018",
+      "type": "site",
+      "name": "P018 · LiderFilm",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p018/1.0.0/manifest.json",
+      "manifestSha256": "a29950337d0166d9fb69ac756a351d1431b38e4709656674af5cf17ad665c6c1"
+    },
+    {
+      "id": "r018",
+      "type": "resolver",
+      "name": "R018 · LiderFilm kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r018/1.0.0/manifest.json",
+      "manifestSha256": "859ed69e9a7f246546a620cc7c682a5d5a969eb30981eb8296d30ab31b83b767"
+    },
+    {
+      "id": "p019",
+      "type": "site",
+      "name": "P019 · HDFilmCehennemi 2",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/p019/1.0.0/manifest.json",
+      "manifestSha256": "28831914cc572c5ca737ec6f0a9e594afb23a4508c7effdae0f079345e49bf22"
+    },
+    {
+      "id": "r019",
+      "type": "resolver",
+      "name": "R019 · HDFilmCehennemi 2 kaynakları",
+      "version": "1.0.0",
+      "minAppVersionCode": 39,
+      "manifest": "packages/r019/1.0.0/manifest.json",
+      "manifestSha256": "7693dc3273015ef30f0dc44638c61a30418cada1b81b9d00a93ff36131e09f22"
     }
   ]
 }

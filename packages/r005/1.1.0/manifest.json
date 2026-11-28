@@ -1,0 +1,28 @@
+{
+  "id": "r005",
+  "type": "resolver",
+  "name": "R005 · Star TV kaynakları",
+  "version": "1.1.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.pilot.PilotEntry",
+  "origins": [
+    "https://www.startv.com.tr",
+    "https://player-assets.dygdigital.com",
+    "https://dygvideo.dygdigital.com",
+    "https://startv-p3.mncdn.com",
+    "https://startv-p2.mncdn.com",
+    "https://rtuk-p.mncdn.com"
+  ],
+  "dependencies": [],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "artifact": {
+    "path": "packages/r005/1.1.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "p005",
+  "type": "site",
+  "name": "P005 · Star TV",
+  "version": "1.1.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.pilot.PilotEntry",
+  "site": {
+    "id": "p005",
+    "name": "P005 · Star TV",
+    "base": "https://www.startv.com.tr",
+    "search": "/dizi",
+    "list": "/dizi",
+    "cards": "a",
+    "title": "h2",
+    "seriesPath": "/dizi",
+    "contentPattern": "^/dizi/[^/]+(?:/bolumler/[^/]+)?$"
+  },
+  "origins": [
+    "https://www.startv.com.tr",
+    "https://media.startv.com.tr"
+  ],
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r005",
+      "minVersion": "1.1.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "artifact": {
+    "path": "packages/p005/1.1.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

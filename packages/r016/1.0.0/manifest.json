@@ -1,0 +1,33 @@
+{
+  "id": "r016",
+  "type": "resolver",
+  "name": "R016 · NadirFilm kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://*.vmnow.online",
+    "https://*.vmpx.online",
+    "https://dzen.ru",
+    "https://ok.ru",
+    "https://ok6-31.vkuser.net",
+    "https://player.nadirfilm.com",
+    "https://srt.vidmoly.me",
+    "https://vd{n}.okcdn.ru",
+    "https://vidmoly.biz",
+    "https://vidmoly.me",
+    "https://www.nadirfilm.com"
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [],
+  "artifact": {
+    "path": "packages/r016/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

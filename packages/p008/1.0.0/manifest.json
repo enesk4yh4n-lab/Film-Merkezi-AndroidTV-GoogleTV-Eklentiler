@@ -1,0 +1,43 @@
+{
+  "id": "p008",
+  "type": "site",
+  "name": "P008 · Dizigom",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://www.dizigom.news"
+  ],
+  "site": {
+    "search": "/ara?q=",
+    "list": "/filmler",
+    "seriesPath": "/dizi-izle/",
+    "cards": "main a:has(img)",
+    "title": "h2,h3,h4",
+    "contentPattern": "^/(?:film|diziler|anime)/[a-z0-9-]+/?$",
+    "detailTitle": "main h1",
+    "episodeSelector": "#bolumler a[href]",
+    "base": "https://www.dizigom.news",
+    "id": "p008",
+    "name": "Dizigom"
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r008",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p008/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

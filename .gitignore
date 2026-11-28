@@ -9,11 +9,5 @@
 private/
 # Withdrawn distribution artifacts remain local for investigation.
 /packages/*
-!/packages/p002/
-!/packages/r002/
-!/packages/p003/
-!/packages/r003/
-!/packages/p004/
-!/packages/r004/
-!/packages/p005/
-!/packages/r005/
+!/packages/[pr]00[2-9]/
+!/packages/[pr]01[1-9]/

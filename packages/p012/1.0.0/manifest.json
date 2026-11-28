@@ -1,0 +1,43 @@
+{
+  "id": "p012",
+  "type": "site",
+  "name": "P012 · TRDiziİzle",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://www.trdiziizle.tv"
+  ],
+  "site": {
+    "search": "/?s=",
+    "list": "/tum-bolumler/",
+    "seriesPath": "/tum-bolumler/",
+    "cards": ".listepisodes",
+    "title": "[id=dizi-ismi]",
+    "contentPattern": "^/(?:diziler/[a-z0-9-]+|[a-z0-9-]+-[1-9][0-9]*-bolum[a-z0-9-]*)/?$",
+    "detailTitle": "main h1, #content h1",
+    "episodeSelector": ".custom-scrollbar .bolumust a[href]",
+    "base": "https://www.trdiziizle.tv",
+    "id": "p012",
+    "name": "TRDiziİzle"
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r012",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p012/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

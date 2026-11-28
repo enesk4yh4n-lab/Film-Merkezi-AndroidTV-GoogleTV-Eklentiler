@@ -1,0 +1,47 @@
+{
+  "id": "p016",
+  "type": "site",
+  "name": "P016 · NadirFilm",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://image.tmdb.org",
+    "https://www.nadirfilm.com"
+  ],
+  "site": {
+    "search": "/?s=",
+    "list": "/filmler/",
+    "cards": ".nf2-film-grid article.nf2-card",
+    "title": ".nf2-card-title",
+    "contentPattern": "^/[a-z0-9-]+-izle/?$",
+    "year": ".nf2-card-facts",
+    "imdb": ".nf2-rating-chip--imdb strong",
+    "language": ".nf-film-language-badge",
+    "detailTitle": ".nf3-film-intro h1, .nf3-film-page h1",
+    "description": ".nf3-synopsis",
+    "genres": ".nf3-film-intro a[href*='/kategori/']",
+    "base": "https://www.nadirfilm.com",
+    "id": "p016",
+    "name": "NadirFilm"
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r016",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p016/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

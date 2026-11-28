@@ -1,0 +1,33 @@
+{
+  "id": "r019",
+  "type": "resolver",
+  "name": "R019 · HDFilmCehennemi 2 kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://*.haccodavayup.shop",
+    "https://*.pictureupfans.site",
+    "https://*.upvm.online",
+    "https://*.vmnow.online",
+    "https://*.vmpx.online",
+    "https://srt.vidmoly.me",
+    "https://vidload.top",
+    "https://vidmoly.biz",
+    "https://vidmoly.me",
+    "https://vidmoly.net",
+    "https://www.hdfilmcehennemi2.biz"
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [],
+  "artifact": {
+    "path": "packages/r019/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

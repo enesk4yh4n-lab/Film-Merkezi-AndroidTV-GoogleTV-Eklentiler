@@ -1,0 +1,35 @@
+{
+  "id": "r014",
+  "type": "resolver",
+  "name": "R014 · Film İzle Hell kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://filmizlehell.net",
+    "https://n.1071.site",
+    "https://n.1071media.sbs",
+    "https://n.1071play.sbs",
+    "https://n.mediaturka.sbs",
+    "https://n.meyascope.sbs",
+    "https://n.sharemedia.site",
+    "https://n.sharemedia.space",
+    "https://n.thorcdn.site",
+    "https://n.vidproxy-{n}.site",
+    "https://n.{n}turk.space",
+    "https://n.{n}turk.store",
+    "https://p.playturka.space"
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [],
+  "artifact": {
+    "path": "packages/r014/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

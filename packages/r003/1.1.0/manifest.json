@@ -1,0 +1,26 @@
+{
+  "id": "r003",
+  "type": "resolver",
+  "name": "R003 · NOW kaynakları",
+  "version": "1.1.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.pilot.PilotEntry",
+  "origins": [
+    "https://www.nowtv.com.tr",
+    "https://tdywsbbzdx.erbvr.com",
+    "https://tdywsbbzdx.fdc.ercdn.net",
+    "https://tdywsbbzdx.fra.ercdn.net"
+  ],
+  "dependencies": [],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "artifact": {
+    "path": "packages/r003/1.1.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

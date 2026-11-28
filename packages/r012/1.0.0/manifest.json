@@ -1,0 +1,35 @@
+{
+  "id": "r012",
+  "type": "resolver",
+  "name": "R012 · TRDiziİzle kaynakları",
+  "version": "1.0.0",
+  "minAppVersionCode": 39,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://*.googlevideo.com",
+    "https://cms-tabii-public-video.tabii.com",
+    "https://downloader.disk.yandex.com.tr",
+    "https://downloader.disk.yandex.ru",
+    "https://eu1.tabii.com",
+    "https://mds.storage.yandex.net",
+    "https://puhu-p{n}.mncdn.com",
+    "https://rtuk-p.mncdn.com",
+    "https://streambox.xyz",
+    "https://streambox{n}.xyz",
+    "https://video.twimg.com",
+    "https://vmcdn.ciner.com.tr",
+    "https://www.trdiziizle.tv"
+  ],
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [],
+  "artifact": {
+    "path": "packages/r012/1.0.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}
