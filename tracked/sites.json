@@ -1,6 +1,6 @@
 [
   {"code":"006","siteId":"ddizi","name":"DDizi","base":"https://www.ddizi.tel","probe":"Uzak Şehir"},
-  {"code":"007","siteId":"diziboxum","name":"DiziBoxum","base":"https://diziboxum.com","probe":"Tulsa King"},
+  {"code":"007","siteId":"diziboxum","name":"DiziBoxum","base":"https://diziboxum.com","probe":"Tulsa King","catalogSections":{"DRAMA_SHORT":[{"path":"/asya-dizileri/"}]}},
   {"code":"008","siteId":"p008","name":"Dizigom","base":"https://www.dizigom.news","probe":"Sherlock","site":{"search":"/ara?q=","list":"/filmler","seriesPath":"/dizi-izle/","cards":"main a:has(img)","title":"h2,h3,h4","contentPattern":"^/(?:film|diziler|anime)/[a-z0-9-]+/?$","detailTitle":"main h1","episodeSelector":"#bolumler a[href]"}},
   {"code":"009","siteId":"hdfilmdelisi","name":"HDFilmDelisi","base":"https://hdfilmdelisi1.com","probe":"Sherlock"},
   {"code":"011","siteId":"fullhdfilmizlesene","name":"FullHDFilmizlesene","base":"https://www.fullhdfilmizlesene.now","probe":"Arif"},

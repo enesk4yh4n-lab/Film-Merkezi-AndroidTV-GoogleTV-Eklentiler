@@ -1,0 +1,63 @@
+{
+  "id": "p007",
+  "type": "site",
+  "name": "P007 · DiziBoxum",
+  "version": "1.1.0",
+  "minAppVersionCode": 40,
+  "minSdk": 23,
+  "entryClass": "app.filmmerkezi.addon.BuiltinEntry",
+  "origins": [
+    "https://diziboxum.com",
+    "https://ksdpictures.site",
+    "https://pictures.izmirgezisi.site",
+    "https://pictures.spordunyasi.site",
+    "https://yabancidizim.com"
+  ],
+  "site": {
+    "catalogAliases": [
+      "www.diziboxum.com"
+    ],
+    "cards": "a.r-card, .single-item",
+    "year": ".year",
+    "episodeSelector": "a[href*=\"-sezon-\"][href*=\"-bolum\"], a[href*=\"/bolum/\"], a.season-episode",
+    "detailTitle": "h1",
+    "description": "[itemprop=description], .movie-description",
+    "language": ".language",
+    "list": "/diziler/",
+    "title": ".r-cap-t, .categorytitle",
+    "contentPattern": "^/(?:dizi/[a-z0-9-]+/|[a-z0-9-]+-\\d+-sezon-\\d+-bolum(?:-[a-z0-9-]+)?/(?:[1-9]\\d*/)?)$",
+    "search": "/?s=",
+    "imdb": ".imdb",
+    "genres": "[itemprop=genre], a[rel~=category], a[href*=\"/tur/\"], a[href*=\"/kategori/\"]",
+    "name": "DiziBoxum",
+    "seriesPath": "/diziler/",
+    "id": "diziboxum",
+    "poster": "img",
+    "base": "https://diziboxum.com",
+    "catalogSections": {
+      "DRAMA_SHORT": [
+        {
+          "path": "/asya-dizileri/"
+        }
+      ]
+    }
+  },
+  "schemaVersion": 1,
+  "platform": "android",
+  "runtime": "kotlin-dex-v1",
+  "sdkMin": 1,
+  "sdkMax": 2,
+  "dependencies": [
+    {
+      "publisher": "d31d23cccc49043e3846a9b799e1cea9464f8cd29e04daa55dd5d05c1a96fc1f",
+      "id": "r007",
+      "minVersion": "1.0.0",
+      "maxVersion": "2.0.0"
+    }
+  ],
+  "artifact": {
+    "path": "packages/p007/1.1.0/plugin.jar",
+    "size": 182723,
+    "sha256": "838328139d7bcd48eeb873f58d269447a48ea720ce7edc166e401ffa4f8923d4"
+  }
+}

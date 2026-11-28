@@ -19,7 +19,8 @@
   },
   {
     "id":"p004","type":"site","name":"P004 · Filmci Baba","version":"1.0.0","minAppVersionCode":38,"minSdk":23,"entryClass":"app.filmmerkezi.addon.pilot.PilotEntry",
-    "site":{"id":"filmcibaba","name":"P004 · Filmci Baba","base":"https://filmizle.ink","search":"/?s=","list":"/Kategori/en-populer-filmler/","cards":"a.v100-card, .custom-card-wrapper, .v50-card","title":".v100-title, .movie-title, .v50-details h3","detailTitle":".p-v12-main-title, h1","description":".p-v12-summary, .film-ozeti, [itemprop=description]","year":".movie-release","imdb":".v100-imdb-tag, .v50-imdb-tag","seriesPath":"/Kategori/dizi-izle/","contentPattern":"^/[a-z0-9-]+/(?:[1-9]\\d*/)?$"},
+    "site":{"id":"filmcibaba","name":"P004 · Filmci Baba","base":"https://filmizle.ink","search":"/?s=","list":"/Kategori/en-populer-filmler/","cards":"a.v100-card, .custom-card-wrapper, .v50-card","title":".v100-title, .movie-title, .v50-details h3","detailTitle":".p-v12-main-title, h1","description":".p-v12-summary, .film-ozeti, [itemprop=description]","year":".movie-release","imdb":".v100-imdb-tag, .v50-imdb-tag","seriesPath":"/Kategori/dizi-izle/","contentPattern":"^/[a-z0-9-]+/(?:[1-9]\\d*/)?$",
+      "catalogSections":{"ANIMATION":[{"path":"/Kategori/tur/animasyon-filmleri/"},{"path":"/Kategori/anime-izle/"}],"DRAMA_SHORT":[{"path":"/Kategori/k-drama-reels-asya-dizileri/","kinds":["MOVIE","SERIES"]}]}},
     "origins":["https://filmizle.ink"]
   },
   {

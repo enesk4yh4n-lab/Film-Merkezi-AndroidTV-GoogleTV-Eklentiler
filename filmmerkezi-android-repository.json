@@ -5,7 +5,7 @@
   "id": "film-merkezi-android-eklentiler",
   "name": "Film Merkezi Android Eklentiler",
   "publicKey": "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAyLKJw9+q97QUKCs8HYDWTuNLBtKgaPKWX+yPfjV83IvQR9GmqUIzkX8kbcnrt8QvhsqZ1mXMgE3eonvMf2uTIvD643Jb1UvZbeS5ACwR+0Nl9DmhabmX2T0Kv2dDVeftbXQoxRYrXadjr0YLgvSTZ+qCWKYRs6/i9MpCpIaEg/PRvDPGjhXtthtlFlqZSv/a9tMmDeztDcoi7gZtL8lSC8DdnndGbKQOepD1AJv66ysl3vKNaNa1jmtwZ7QcJVJ+tkYgA8uP8QfqPiJYQzmcsuCx9/zH3qxG4CwT8weEG1YeV+kT+0CxRPWuYhxDaDZ/9z62FC2xlhCV7IKseWQXbkCUqHBsFD0OxZ5RUbdFUx3eU+H9x/iUhGWAK5R2wETV15Yhj8hOdrbHRy0qRkSgFrc5q/L5OrX5FCDDKnHtZdWjPRBsqk887oOi3sSTDUDykRpWTO1lkotLmvXqly3TLddiVleFVwsvnKut9I0Vz7Gvb0Dzdl23SseG10vur/IBAgMBAAE=",
-  "revision": 69,
+  "revision": 71,
   "packages": [
     {
       "id": "p002",
@@ -384,6 +384,24 @@
       "minAppVersionCode": 39,
       "manifest": "packages/r019/1.0.0/manifest.json",
       "manifestSha256": "7693dc3273015ef30f0dc44638c61a30418cada1b81b9d00a93ff36131e09f22"
+    },
+    {
+      "id": "p004",
+      "type": "site",
+      "name": "P004 · Filmci Baba",
+      "version": "1.2.0",
+      "minAppVersionCode": 40,
+      "manifest": "packages/p004/1.2.0/manifest.json",
+      "manifestSha256": "6423766da267079d3281bde8c6d2d90cac64114c6eb67136cfe7061080893214"
+    },
+    {
+      "id": "p007",
+      "type": "site",
+      "name": "P007 · DiziBoxum",
+      "version": "1.1.0",
+      "minAppVersionCode": 40,
+      "manifest": "packages/p007/1.1.0/manifest.json",
+      "manifestSha256": "3171f1fba1260722a3e037b22bb655d7c7c7222d9870de8af5a11eac0de431fd"
     }
   ]
 }
