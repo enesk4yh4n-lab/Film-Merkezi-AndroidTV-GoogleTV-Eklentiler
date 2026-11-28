@@ -24,7 +24,7 @@ object DiziboxumParser {
             val title=TextKey.title(HtmlData.text(n,".r-cap-t, .categorytitle")).ifBlank{a.attr("title")}
             if(title.isBlank())return@mapNotNull null
             val ownYear=HtmlData.text(n,".r-cap-s").ifBlank{Regex("yapim yili\\s*:?\\s*((?:19|20)\\d{2})").find(TextKey.fold(n.text()))?.groupValues?.get(1).orEmpty()}
-            Card(ContentRef(site.id,url,site.kind(url)),title,HtmlData.image(n,page),year(ownYear),rating(HtmlData.text(n,".r-imdb, .imdbp")),language(n),episodeNumber=CatalogParser.episodeNumber("",url))
+            Card(ContentRef(site.id,url,site.kind(url)),title,CatalogPosters.image(n,page),year(ownYear),rating(HtmlData.text(n,".r-imdb, .imdbp")),language(n),episodeNumber=CatalogParser.episodeNumber("",url))
         }.distinctBy{it.ref.id}
         if(nodes.isEmpty()&&!Regex("sonuc bulunamadi|icerik bulunamadi|hicbir sonuc|bulunamadi").containsMatchIn(TextKey.fold(d.text())))
             throw DataFailure(FailureKind.PARSE,"Diziboxum katalog biçimi tanınamadı","catalog")

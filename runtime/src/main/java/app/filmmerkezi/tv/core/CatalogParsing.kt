@@ -21,7 +21,7 @@ class CatalogParser(val site:SiteSpec) {
             if(!pattern.matches(url.toHttpUrl().encodedPath))return@mapNotNull null
             val title=TextKey.title(n.text()).replace(Regex("\\s+son bölüm$",RegexOption.IGNORE_CASE),"")
             if(title.isBlank())return@mapNotNull null
-            Card(ContentRef(site.id,url,ContentKind.SERIES),title,if(site.id=="fixfullfilmizle")""else HtmlData.image(n,page))
+            Card(ContentRef(site.id,url,ContentKind.SERIES),title,if(site.id=="fixfullfilmizle")""else CatalogPosters.image(n,page))
         }.distinctBy{it.ref.id}
         if(all.isEmpty())throw DataFailure(FailureKind.PARSE,"Dizi indeksi bulunamadı","catalog")
         return CatalogPage(all.drop(offset).take(60),if(all.size>offset+60)PageCursor(site.id,page,offset/60+2,mapOf("indexOffset" to (offset+60).toString()))else null)
@@ -85,7 +85,7 @@ class CatalogParser(val site:SiteSpec) {
             val title=TextKey.title(HtmlData.text(box,site.title).ifBlank { box.attr("data-title") }.ifBlank { a?.attr("title")?:"" }.ifBlank { HtmlData.text(a) })
             if(title.isBlank())return@mapNotNull null
             val kind=if(site.id=="lovefilmizle"&&SeriesIdentity.season(title)!=null)ContentKind.SERIES else site.kind(url)
-            Card(ContentRef(site.id,site.canonical(url),kind),title,HtmlData.image(box,page),
+            Card(ContentRef(site.id,site.canonical(url),kind),title,CatalogPosters.image(box,page),
                 year(if(site.id=="hdfilmdelisi")box.text()else HtmlData.text(box,site.year)),
                 if(site.id=="hdfilmdelisi")Regex("★\\s*(\\d+(?:\\.\\d+)?)").find(box.text())?.groupValues?.get(1)?.toDoubleOrNull()else num(HtmlData.text(box,site.imdb)),language(box),sourceSeason=if(kind==ContentKind.SERIES)SeriesIdentity.season(title)else null)
         }

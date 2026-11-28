@@ -43,7 +43,7 @@ internal class TrackedCatalog(private val site: SiteSpec) {
             } ?: return@mapNotNull null
             val address = site.catalogUrl(link.attr("href"), url) ?: return@mapNotNull null
             if (address.toHttpUrl().query != null || !site.contentPattern.matches(address.toHttpUrl().encodedPath)) return@mapNotNull null
-            val poster = HtmlData.image(node, url)
+            val poster = CatalogPosters.image(node, url)
             val kind = when (site.id) {
                 "p008" -> if (path(address).startsWith("/film/")) ContentKind.MOVIE else ContentKind.SERIES
                 "p017" -> {
@@ -86,7 +86,7 @@ internal class TrackedCatalog(private val site: SiteSpec) {
             val title = text(link, "h2,h3,.nf-cur-directory-card__title").ifBlank { link.attr("aria-label") }
                 .ifBlank { link.attr("title") }.ifBlank { link.text() }
             if (title.isBlank()) return@mapNotNull null
-            Card(ContentRef(site.id, address, ContentKind.COLLECTION), title, HtmlData.image(link, url))
+            Card(ContentRef(site.id, address, ContentKind.COLLECTION), title, CatalogPosters.image(link, url))
         }.distinctBy { it.ref.id }
     }
 
@@ -108,7 +108,7 @@ internal class TrackedCatalog(private val site: SiteSpec) {
                 choices.singleOrNull() ?: index.values.flatten().filter { path(it) == "/diziler/$stem" }.distinctBy(::path).singleOrNull()
             } ?: return@mapNotNull null
             if (!path(parent).matches(Regex("""^/diziler/[a-z0-9-]+$"""))) return@mapNotNull null
-            Card(ContentRef(site.id, parent, ContentKind.SERIES), title, HtmlData.image(box, url))
+            Card(ContentRef(site.id, parent, ContentKind.SERIES), title, CatalogPosters.image(box, url))
         }
         return CatalogPage(rows.distinctBy { it.ref.id }.take(80), next(doc, url))
     }

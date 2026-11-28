@@ -40,8 +40,9 @@ object NativeParsers {
         val p = page.replace(Regex("^https?://[^/]+", RegexOption.IGNORE_CASE), "").substringBefore('?').substringBefore('#').trim('/')
         return if (type == "series" || p.startsWith("dizi/")) "hdf:series:" + p.removePrefix("dizi/").replace(Regex("-izle(?:-\\d+)?$"), "") else "hdf:$p"
     }
-    private fun image(n: Element?, page: String, film: Boolean): String {
+    private fun image(n: Element?, page: String, film: Boolean, thumbnail:Boolean=false): String {
         val img = if (!film && n?.tagName() == "img") n else n?.selectFirst("img")
+        if(thumbnail)app.filmmerkezi.tv.core.CatalogPosters.thumbnail(img,page).takeIf{it.isNotEmpty()}?.let{return it}
         return url(img?.attr("data-src")?.takeIf { it.isNotEmpty() } ?: (if (film) img?.attr("data-litespeed-src")?.takeIf { it.isNotEmpty() } else null) ?: img?.attr("data-catalog-src"), page)
     }
     private fun folded(s: String): String = clean(s).replace('İ', 'i').lowercase(Locale.ROOT).replace("\u0307", "").map { c -> when (c) { 'ı','ì','í','î','ï' -> 'i'; 'ç','ć','č' -> 'c'; 'ğ','ģ' -> 'g'; 'ö','ò','ó','ô','õ','ø' -> 'o'; 'ş','ś','š' -> 's'; 'ü','ù','ú','û' -> 'u'; 'â','à','á','ä','ã','å' -> 'a'; 'é','è','ê','ë' -> 'e'; 'ñ' -> 'n'; else -> c } }.joinToString("")
@@ -105,7 +106,7 @@ object NativeParsers {
             val type = if (collection) "collection" else if (series(title, box, hint)) "series" else "movie"
             val year = Regex("\\b(?:19|20)\\d{2}\\b").find(text(box, ".movie-release"))?.value?.toInt()
             out.put(objectOf("contentId" to filmId(u, type), "providerId" to "filmizle", "type" to type, "pageUrl" to u, "title" to title,
-                "titleAliases" to aliases(title), "yearHint" to if (type == "movie") yearHint(title, u) else null, "poster" to image(box, page, true),
+                "titleAliases" to aliases(title), "yearHint" to if (type == "movie") yearHint(title, u) else null, "poster" to image(box, page, true,thumbnail=true),
                 "year" to year, "imdb" to number(text(box, ".v100-imdb-tag, .v50-imdb-tag, .imdb")), "language" to lang(box)))
         }; return out
     }
@@ -168,7 +169,7 @@ object NativeParsers {
             val key = hdfId(u, type); val title = text(a, ".poster-title, .mini-poster-title, .title").ifEmpty { clean(a.attr("title")) }.ifEmpty { clean(a.selectFirst("img")?.attr("alt")).replace(Regex(" izle$"), "") }
             if (title.isEmpty() || !seen.add(key)) return@forEach
             val y = text(a, ".year").ifEmpty { text(a, ".poster-meta > span:first-child") }.ifEmpty { text(a, ".mini-poster-meta") }
-            out.put(objectOf("contentId" to key, "type" to type, "pageUrl" to u, "title" to title, "titleAliases" to JSONArray(title.split(" - ").map { clean(it) }), "poster" to image(a, page, false),
+            out.put(objectOf("contentId" to key, "type" to type, "pageUrl" to u, "title" to title, "titleAliases" to JSONArray(title.split(" - ").map { clean(it) }), "poster" to image(a, page, false,thumbnail=true),
                 "year" to Regex("\\b(?:19|20)\\d{2}\\b").find(y)?.value?.toInt(), "imdb" to number(text(a, ".imdb, .mini-poster-imdb")), "language" to text(a, ".poster-lang > span")))
         }; return out
     }

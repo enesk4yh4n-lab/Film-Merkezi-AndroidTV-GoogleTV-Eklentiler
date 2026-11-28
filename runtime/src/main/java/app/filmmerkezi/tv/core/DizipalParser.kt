@@ -47,7 +47,7 @@ object DizipalParser {
             val rating=spans.firstOrNull{it.selectFirst("svg.lucide-star")!=null}?.text()?.toDoubleOrNull()
             val label=spans.map{it.text()}.firstOrNull{it.contains("Dublaj",true)||it.contains("Altyaz",true)}.orEmpty()
             val cc=spans.any{it.text()=="CC"};val dub=a.select("img[alt=TR]").isNotEmpty()
-            Card(ContentRef(site.id,url,site.kind(url)),title,HtmlData.image(a,page),y,rating,
+            Card(ContentRef(site.id,url,site.kind(url)),title,CatalogPosters.image(a,page),y,rating,
                 label.ifBlank{if(dub&&cc)"Dublaj & Altyazılı"else if(dub)"Türkçe Dublaj"else if(cc)"Türkçe Altyazılı"else""})
         }.distinctBy{it.ref.id}
         if(cards.isEmpty())throw DataFailure(FailureKind.PARSE,"Dizipal katalog kartları bulunamadı","catalog")

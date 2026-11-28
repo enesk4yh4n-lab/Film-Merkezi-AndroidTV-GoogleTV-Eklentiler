@@ -89,6 +89,7 @@ internal class Broadcaster(private val site: SiteSpec, private val io: PilotIO,
     }
     private fun image(el: org.jsoup.nodes.Element): String {
         val img=el.selectFirst("img")?:return ""
+        CatalogPosters.thumbnail(img,base).takeIf{it.isNotEmpty()}?.let{return it}
         val raw=img.attr("data-src").ifBlank{img.attr("data-catalog-src")}.ifBlank{img.attr("src")}
         return runCatching{java.net.URI(base).resolve(raw).toString()}.getOrDefault("").takeIf{raw.isNotBlank()}?:""
     }
