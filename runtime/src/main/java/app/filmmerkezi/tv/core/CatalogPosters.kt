@@ -20,6 +20,9 @@ object CatalogPosters {
             val url=publicUrl(match.groupValues[1],page)?.takeIf{it.startsWith("https://")}
             if(url!=null&&width>=80)Candidate(url,width)else null
         }.toList()
+        val current=HtmlData.image(image,page)
+        val alreadySmall=candidates.any{it.url==current&&it.width<=TARGET_WIDTH}
+        if(alreadySmall)return current
         val larger=candidates.filter{it.width>=TARGET_WIDTH}.minByOrNull{it.width}
         val smaller=candidates.filter{it.width<TARGET_WIDTH}.maxByOrNull{it.width}
         return (if(smaller!=null&&smaller.width>=220&&(larger?.width?:Int.MAX_VALUE)>420)smaller
